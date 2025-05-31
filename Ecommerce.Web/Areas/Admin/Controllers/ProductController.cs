@@ -119,7 +119,7 @@ namespace Ecommerce.Web.Areas.Admin.Controllers
         [HttpGet]
         public IActionResult GetAll() {
 
-            List<Product> products = _unitOfWork.Product.GetAll().ToList();
+            List<Product> products = _unitOfWork.Product.GetAll(include:"Category").ToList();
             return Json(new { Data = products });
         }   
         [HttpDelete]

@@ -13,7 +13,7 @@ namespace Ecommerce.Web.Areas.Customer.Controllers
 {
     [Area("Customer")]
     //[Authorize(Roles =SD.Role_Customer)]
-
+    
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -39,7 +39,7 @@ namespace Ecommerce.Web.Areas.Customer.Controllers
             return View(Products);
 
         }
-
+       
         public IActionResult Details(int ProductID)
         {
             Product product= _unitOfWork.Product.Get(p=>p.Id==ProductID);
@@ -47,6 +47,7 @@ namespace Ecommerce.Web.Areas.Customer.Controllers
             ShoppingCart shoppingCart = new ShoppingCart { Product = product,Count=1,ProductID=product.Id };
             return View(shoppingCart);
         }
+        [Authorize]
 
         [HttpPost]
         public IActionResult Details(ShoppingCart shoppingCart)

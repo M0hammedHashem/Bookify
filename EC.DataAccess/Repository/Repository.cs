@@ -41,15 +41,21 @@ namespace ECommerce.DataAccess.Repository
         {
             IQueryable<T> query = _db.Set<T>();
             if(filter != null)  
-                query = query.Where(filter);    
+                query = query.Where(filter);
+
+
             if (!string.IsNullOrEmpty(include))
             {
-                foreach (var inc in include.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                foreach (var includeProp in include
+                    .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    query = query.Include(inc);
+                    query = query.Include(includeProp);
                 }
             }
             return query.ToList();
+
+
+         
        
         }
 

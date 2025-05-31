@@ -12,6 +12,7 @@ namespace Ecommerce.Web.Areas.Customer.Controllers
     //[Authorize(Roles="Customer")]
 
     [Area("Customer")]
+    [Authorize]
     public class CartController : Controller
     {
         public readonly IUnitOfWork _unitOfWork;
@@ -36,6 +37,7 @@ namespace Ecommerce.Web.Areas.Customer.Controllers
             }
             return View(shoppingCartVM);
         } 
+
         
         public IActionResult Summary()
         {
@@ -172,10 +174,10 @@ namespace Ecommerce.Web.Areas.Customer.Controllers
                     _unitOfWork.OrderHeader.UpdateStatus(id, SD.StatusApproved, SD.PaymentStatusApproved);
                     _unitOfWork.Save();
                 }
-                HttpContext.Session.Clear();
-
-
+             
             }
+            HttpContext.Session.Clear();
+
 
             List<ShoppingCart> shoppingCarts = _unitOfWork.ShoppingCart
                 .GetAll(u => u.ApplicationUserID == orderHeader.ApplicationUserID).ToList();
