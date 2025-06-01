@@ -16,6 +16,6 @@ namespace ECommerce.Models
         [Range(1, 50, ErrorMessage = "Display Order must be 1-50")]
 
         public int DisplayOrder { get; set; }
-        public List<Product> Products { get; set; }
+        
     }
 }

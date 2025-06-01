@@ -17,6 +17,10 @@ namespace ECommerce.DataAccess.Repository
         {
             
         }
-     
+
+        public void Update(ApplicationUser applicationUser)
+        {
+            _db.Update(applicationUser);
+        }
     }
 }

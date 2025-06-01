@@ -6,6 +6,8 @@ using ECommerce.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace Ecommerce.Web.Areas.Admin.Controllers
 {
@@ -23,8 +25,8 @@ namespace Ecommerce.Web.Areas.Admin.Controllers
         }
         public IActionResult Index()
         {
-            List<Product> products = _unitOfWork.Product.GetAll(include:"Category").ToList();
-            return View(products);
+            
+            return View();
         }
         public IActionResult UpSert(int ?id) { 
             
@@ -117,11 +119,17 @@ namespace Ecommerce.Web.Areas.Admin.Controllers
 
         #region API Calls
         [HttpGet]
-        public IActionResult GetAll() {
+        public IActionResult GetAll()
+        {
+            
+            
+            List<Product> Products = _unitOfWork.Product.GetAll(
+          include: "Category").ToList();
+            return Json(new { data = Products });
 
-            List<Product> products = _unitOfWork.Product.GetAll(include:"Category").ToList();
-            return Json(new { Data = products });
-        }   
+
+            //return Json(new { Data = productsDTOs });
+        }
         [HttpDelete]
         public IActionResult Delete(int id) {
 

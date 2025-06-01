@@ -42,7 +42,7 @@ namespace Ecommerce.Web.Areas.Customer.Controllers
        
         public IActionResult Details(int ProductID)
         {
-            Product product= _unitOfWork.Product.Get(p=>p.Id==ProductID);
+            Product product= _unitOfWork.Product.Get(p=>p.Id==ProductID,include:"Category");
             
             ShoppingCart shoppingCart = new ShoppingCart { Product = product,Count=1,ProductID=product.Id };
             return View(shoppingCart);
