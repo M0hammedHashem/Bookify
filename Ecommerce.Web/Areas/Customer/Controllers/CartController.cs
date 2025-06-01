@@ -15,125 +15,135 @@ namespace Ecommerce.Web.Areas.Customer.Controllers
     [Authorize]
     public class CartController : Controller
     {
-        public readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
         [BindProperty]
-        public ShoppingCartVM shoppingCartVM { get; set; }
+        public ShoppingCartVM ShoppingCartVM { get; set; }
+
         public CartController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
-        public IActionResult Index()
-        {
-             shoppingCartVM = new ShoppingCartVM() {OrderHeader=new OrderHeader { } };
-            var claimIdentity = (ClaimsIdentity)User.Identity;
-            var id= claimIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            shoppingCartVM.ShoppingCartList = _unitOfWork.ShoppingCart.GetAll(sh => sh.ApplicationUserID == id,include:"Product").ToList();
-
-            foreach(var cart in  shoppingCartVM.ShoppingCartList)
-            {
-                cart.Price = GetPriceBasedOnPrdQuantity(cart);
-                shoppingCartVM.OrderHeader.OrderTotal += cart.Price * cart.Count;
-            }
-            return View(shoppingCartVM);
-        } 
-
-        
-        public IActionResult Summary()
-        {
-
-            var claimIdentity = (ClaimsIdentity)User.Identity;
-            var id = claimIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
-
-             shoppingCartVM = new ShoppingCartVM() { OrderHeader = new OrderHeader { },
-                ShoppingCartList = _unitOfWork.ShoppingCart.GetAll(sh => sh.ApplicationUserID == id, include: "Product").ToList()
-            };
-            var applicationUser = _unitOfWork.ApplicationUser.Get(u=>u.Id == id);
-            shoppingCartVM.OrderHeader.ApplicationUser = applicationUser;
-            shoppingCartVM.OrderHeader.Name = applicationUser.Name;
-            shoppingCartVM.OrderHeader.StreetAddress = applicationUser.StreetAddrees;
-            shoppingCartVM.OrderHeader.PostalCode = applicationUser.PostalCode;
-            shoppingCartVM.OrderHeader.State = applicationUser.State;
-            shoppingCartVM.OrderHeader.City = applicationUser.City;
-            shoppingCartVM.OrderHeader.PhoneNumber = applicationUser.PhoneNumber;
-            foreach (var cart in shoppingCartVM.ShoppingCartList)
-            {
-                cart.Price = GetPriceBasedOnPrdQuantity(cart);
-                shoppingCartVM.OrderHeader.OrderTotal += cart.Price * cart.Count;
-            }
-            return View(shoppingCartVM);
-        }
-        [HttpPost]
-        [ActionName("Summary")]
-        public IActionResult SummaryPOST()
+        public async Task<IActionResult> Index()
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            shoppingCartVM.ShoppingCartList = _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserID == userId,
-                include: "Product").ToList();
+            ShoppingCartVM = new ShoppingCartVM()
+            {
+                OrderHeader = new OrderHeader(),
+                ShoppingCartList = await _unitOfWork.ShoppingCart
+                    .GetAllAsync(sh => sh.ApplicationUserID == userId, include: "Product")
+            };
 
-            shoppingCartVM.OrderHeader.OrderDate = System.DateTime.Now;
-            shoppingCartVM.OrderHeader.ApplicationUserID = userId;
-
-            ApplicationUser applicationUser = _unitOfWork.ApplicationUser.Get(u => u.Id == userId);
-
-
-            foreach (var cart in shoppingCartVM.ShoppingCartList)
+            foreach (var cart in ShoppingCartVM.ShoppingCartList)
             {
                 cart.Price = GetPriceBasedOnPrdQuantity(cart);
-                shoppingCartVM.OrderHeader.OrderTotal += (cart.Price * cart.Count);
+                ShoppingCartVM.OrderHeader.OrderTotal += cart.Price * cart.Count;
+            }
+
+            return View(ShoppingCartVM);
+        }
+
+        public async Task<IActionResult> Summary()
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            ShoppingCartVM = new ShoppingCartVM()
+            {
+                OrderHeader = new OrderHeader(),
+                ShoppingCartList = await _unitOfWork.ShoppingCart
+                    .GetAllAsync(sh => sh.ApplicationUserID == userId, include: "Product")
+            };
+
+            var applicationUser = await _unitOfWork.ApplicationUser.GetAsync(u => u.Id == userId);
+            ShoppingCartVM.OrderHeader.ApplicationUser = applicationUser;
+            ShoppingCartVM.OrderHeader.Name = applicationUser.Name;
+            ShoppingCartVM.OrderHeader.StreetAddress = applicationUser.StreetAddrees;
+            ShoppingCartVM.OrderHeader.PostalCode = applicationUser.PostalCode;
+            ShoppingCartVM.OrderHeader.State = applicationUser.State;
+            ShoppingCartVM.OrderHeader.City = applicationUser.City;
+            ShoppingCartVM.OrderHeader.PhoneNumber = applicationUser.PhoneNumber;
+
+            foreach (var cart in ShoppingCartVM.ShoppingCartList)
+            {
+                cart.Price = GetPriceBasedOnPrdQuantity(cart);
+                ShoppingCartVM.OrderHeader.OrderTotal += cart.Price * cart.Count;
+            }
+
+            return View(ShoppingCartVM);
+        }
+
+        [HttpPost]
+        [ActionName("Summary")]
+        public async Task<IActionResult> SummaryPOST()
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            ShoppingCartVM.ShoppingCartList = await _unitOfWork.ShoppingCart
+                .GetAllAsync(u => u.ApplicationUserID == userId, include: "Product");
+
+            ShoppingCartVM.OrderHeader.OrderDate = DateTime.Now;
+            ShoppingCartVM.OrderHeader.ApplicationUserID = userId;
+
+            var applicationUser = await _unitOfWork.ApplicationUser.GetAsync(u => u.Id == userId);
+
+            foreach (var cart in ShoppingCartVM.ShoppingCartList)
+            {
+                cart.Price = GetPriceBasedOnPrdQuantity(cart);
+                ShoppingCartVM.OrderHeader.OrderTotal += (cart.Price * cart.Count);
             }
 
             if (applicationUser.CompanyID.GetValueOrDefault() == 0)
             {
-                //it is a regular customer 
-                shoppingCartVM.OrderHeader.PaymentStatus = SD.PaymentStatusPending;
-                shoppingCartVM.OrderHeader.OrderStatus = SD.StatusPending;
+                // Regular customer
+                ShoppingCartVM.OrderHeader.PaymentStatus = SD.PaymentStatusPending;
+                ShoppingCartVM.OrderHeader.OrderStatus = SD.StatusPending;
             }
             else
             {
-                //it is a company user
-                shoppingCartVM.OrderHeader.PaymentStatus = SD.PaymentStatusDelayedPayment;
-                shoppingCartVM.OrderHeader.OrderStatus = SD.StatusApproved;
+                // Company user
+                ShoppingCartVM.OrderHeader.PaymentStatus = SD.PaymentStatusDelayedPayment;
+                ShoppingCartVM.OrderHeader.OrderStatus = SD.StatusApproved;
             }
-            _unitOfWork.OrderHeader.Add(shoppingCartVM.OrderHeader);
-            _unitOfWork.Save();
-            foreach (var cart in shoppingCartVM.ShoppingCartList)
+
+            await _unitOfWork.OrderHeader.AddAsync(ShoppingCartVM.OrderHeader);
+            await _unitOfWork.SaveAsync();
+
+            foreach (var cart in ShoppingCartVM.ShoppingCartList)
             {
-                OrderDetail orderDetail = new()
+                var orderDetail = new OrderDetail()
                 {
                     ProductId = cart.ProductID,
-                    OrderHeaderId = shoppingCartVM.OrderHeader.ID,
+                    OrderHeaderId = ShoppingCartVM.OrderHeader.ID,
                     Price = cart.Price,
                     Count = cart.Count
                 };
-                _unitOfWork.OrderDetail.Add(orderDetail);
-                _unitOfWork.Save();
+                await _unitOfWork.OrderDetail.AddAsync(orderDetail);
             }
+            await _unitOfWork.SaveAsync();
 
             if (applicationUser.CompanyID.GetValueOrDefault() == 0)
             {
-
-                //it is a regular customer account and we need to capture payment
-                //stripe logic
-
-                var domain = Request.Scheme + "://" + Request.Host.Value + "/";
+                // Stripe payment for regular customers
+                var domain = $"{Request.Scheme}://{Request.Host.Value}/";
                 var options = new SessionCreateOptions
                 {
-                    SuccessUrl = domain + $"customer/cart/OrderConfirmation?id={shoppingCartVM.OrderHeader.ID}",
+                    SuccessUrl = domain + $"customer/cart/OrderConfirmation?id={ShoppingCartVM.OrderHeader.ID}",
                     CancelUrl = domain + "customer/cart/index",
                     LineItems = new List<SessionLineItemOptions>(),
                     Mode = "payment",
                 };
 
-                foreach (var item in shoppingCartVM.ShoppingCartList)
+                foreach (var item in ShoppingCartVM.ShoppingCartList)
                 {
                     var sessionLineItem = new SessionLineItemOptions
                     {
                         PriceData = new SessionLineItemPriceDataOptions
                         {
-                            UnitAmount = (long)(item.Price * 100), // $20.50 => 2050
+                            UnitAmount = (long)(item.Price * 100),
                             Currency = "usd",
                             ProductData = new SessionLineItemPriceDataProductDataOptions
                             {
@@ -145,119 +155,107 @@ namespace Ecommerce.Web.Areas.Customer.Controllers
                     options.LineItems.Add(sessionLineItem);
                 }
 
-
                 var service = new SessionService();
                 Session session = service.Create(options);
-                _unitOfWork.OrderHeader.UpdateStripePaymentID(shoppingCartVM.OrderHeader.ID , session.Id, session.PaymentIntentId);
-                _unitOfWork.Save();
+                await _unitOfWork.OrderHeader.UpdateStripePaymentID(ShoppingCartVM.OrderHeader.ID, session.Id, session.PaymentIntentId);
+                await _unitOfWork.SaveAsync();
                 Response.Headers.Add("Location", session.Url);
                 return new StatusCodeResult(303);
             }
 
-            return RedirectToAction(nameof(OrderConfirmation), new { id = shoppingCartVM.OrderHeader.ID });
+            return RedirectToAction(nameof(OrderConfirmation), new { id = ShoppingCartVM.OrderHeader.ID });
         }
 
-
-        public IActionResult OrderConfirmation(int id)
+        public async Task<IActionResult> OrderConfirmation(int id)
         {
-            OrderHeader orderHeader = _unitOfWork.OrderHeader.Get(u => u.ID == id, include: "ApplicationUser");
+            var orderHeader = await _unitOfWork.OrderHeader
+                .GetAsync(u => u.ID == id, include: "ApplicationUser");
+
             if (orderHeader.PaymentStatus != SD.PaymentStatusDelayedPayment)
             {
-                //this is an order by customer
-
                 var service = new SessionService();
                 Session session = service.Get(orderHeader.SessionId);
 
                 if (session.PaymentStatus.ToLower() == "paid")
                 {
                     _unitOfWork.OrderHeader.UpdateStripePaymentID(id, session.Id, session.PaymentIntentId);
-                    _unitOfWork.OrderHeader.UpdateStatus(id, SD.StatusApproved, SD.PaymentStatusApproved);
-                    _unitOfWork.Save();
+                    await _unitOfWork.OrderHeader.UpdateStatusAsync(id, SD.StatusApproved, SD.PaymentStatusApproved);
+                    await _unitOfWork.SaveAsync();
                 }
-             
             }
+
             HttpContext.Session.Clear();
 
+            var shoppingCarts = await _unitOfWork.ShoppingCart
+                .GetAllAsync(u => u.ApplicationUserID == orderHeader.ApplicationUserID);
 
-            List<ShoppingCart> shoppingCarts = _unitOfWork.ShoppingCart
-                .GetAll(u => u.ApplicationUserID == orderHeader.ApplicationUserID).ToList();
+            await _unitOfWork.ShoppingCart.DeleteRangeAsync(shoppingCarts);
+            await _unitOfWork.SaveAsync();
 
-            _unitOfWork.ShoppingCart.DeleteRange(shoppingCarts);
-            _unitOfWork.Save();
             return View(id);
         }
+
+        public async Task<IActionResult> Minus(int id)
+        {
+            var cartFromDb = await _unitOfWork.ShoppingCart.GetAsync(sh => sh.ID == id);
+
+            if (cartFromDb.Count <= 1)
+            {
+                var claimsIdentity = (ClaimsIdentity)User.Identity;
+                var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+                var cartCount = (await _unitOfWork.ShoppingCart
+                    .GetAllAsync(u => u.ApplicationUserID == userId)).Count() - 1;
+                HttpContext.Session.SetInt32(SD.SessionCart, cartCount);
+
+                await _unitOfWork.ShoppingCart.DeleteAsync(cartFromDb);
+            }
+            else
+            {
+                cartFromDb.Count--;
+                _unitOfWork.ShoppingCart.Update(cartFromDb);
+            }
+            await _unitOfWork.SaveAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> Plus(int id)
+        {
+            var cartFromDb = await _unitOfWork.ShoppingCart.GetAsync(sh => sh.ID == id);
+            cartFromDb.Count++;
+            _unitOfWork.ShoppingCart.Update(cartFromDb);
+            await _unitOfWork.SaveAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> Remove(int id)
+        {
+            var cartFromDb = await _unitOfWork.ShoppingCart.GetAsync(sh => sh.ID == id);
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            var cartCount = (await _unitOfWork.ShoppingCart
+                .GetAllAsync(u => u.ApplicationUserID == userId)).Count() - 1;
+            HttpContext.Session.SetInt32(SD.SessionCart, cartCount);
+
+            await _unitOfWork.ShoppingCart.DeleteAsync(cartFromDb);
+            await _unitOfWork.SaveAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
         private double GetPriceBasedOnPrdQuantity(ShoppingCart shoppingCart)
         {
-            double price = 0;
-            if(shoppingCart.Count <=50)
+            if (shoppingCart.Count <= 50)
             {
-             price = shoppingCart.Product.Price;
-
+                return shoppingCart.Product.Price;
             }
-            else if(shoppingCart.Count >50 &&  shoppingCart.Count <=100)
+            else if (shoppingCart.Count <= 100)
             {
-
-                price = shoppingCart.Product.Price50;
-
+                return shoppingCart.Product.Price50;
             }
-            else
-            {
-                price = shoppingCart.Product.Price100;
-
-            }
-
-            return  price;
+            return shoppingCart.Product.Price100;
         }
-
-      
-        public IActionResult Minus(int id) { 
-            ShoppingCart CartFromDb = _unitOfWork.ShoppingCart.Get(sh=>sh.ID == id);
-
-            if (CartFromDb.Count <= 1)
-            {
-                var claimIdentity = (ClaimsIdentity)User.Identity;
-                var applicationUserID = claimIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
-
-                //remove
-                HttpContext.Session.SetInt32(SD.SessionCart, _unitOfWork.ShoppingCart.GetAll(u=>u.ApplicationUserID==applicationUserID).Count() - 1);
-                
-                _unitOfWork.ShoppingCart.Delete(CartFromDb);
-
-            }
-            else
-            {
-                CartFromDb.Count--;
-                _unitOfWork.ShoppingCart.Update(CartFromDb);
-            }
-            _unitOfWork.Save();
-            return RedirectToAction(nameof(Index));
-
-        }
-        public IActionResult Plus(int id) {
-            ShoppingCart CartFromDb = _unitOfWork.ShoppingCart.Get(sh => sh.ID == id);
-            CartFromDb.Count++;
-            _unitOfWork.ShoppingCart.Update(CartFromDb);
-            _unitOfWork.Save();
-            return RedirectToAction(nameof(Index));
-
-        }
-        public IActionResult Remove(int id) {
-            ShoppingCart CartFromDb = _unitOfWork.ShoppingCart.Get(sh => sh.ID == id);
-
-            var claimIdentity = (ClaimsIdentity)User.Identity;
-            var applicationUserID = claimIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
-
-            //remove
-            HttpContext.Session.SetInt32(SD.SessionCart, _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserID == applicationUserID).Count() - 1);
-
-
-            _unitOfWork.ShoppingCart.Delete(CartFromDb);
-
-            _unitOfWork.Save();
-            return RedirectToAction(nameof(Index));
-
-        }
-
-
     }
 }

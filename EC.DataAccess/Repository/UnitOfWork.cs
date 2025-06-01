@@ -1,6 +1,7 @@
 ﻿using ECommerce.DataAccess.Data;
 using ECommerce.DataAccess.Repository.IRepository;
 using ECommerce.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,12 +39,13 @@ namespace ECommerce.DataAccess.Repository
             OrderDetail = orderDetail;
             OrderHeader = orderHeader;
         }
-     
 
-    
-        public void Save()
+
+
+        public async Task SaveAsync()
         {
-            _DbContext.SaveChanges();
+            await _DbContext.SaveChangesAsync();
         }
+
     }
 }

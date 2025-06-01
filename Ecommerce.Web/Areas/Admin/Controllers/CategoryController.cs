@@ -11,98 +11,86 @@ namespace Ecommerce.Web.Areas.Admin.Controllers
     [Authorize(Roles = SD.Role_Admin)]
 
     [Area("Admin")]
-    
+
 
     public class CategoryController : Controller
     {
-
         private readonly IUnitOfWork _unitOfWork;
         public CategoryController(IUnitOfWork unit)
         {
             _unitOfWork = unit;
         }
-        public IActionResult Index()
+
+        public async Task<IActionResult> Index()
         {
-            List<Category> categories = _unitOfWork.Category.GetAll().ToList();
+            IEnumerable<Category> categories = await _unitOfWork.Category.GetAllAsync();
             return View(categories);
         }
+
         public IActionResult Create()
         {
             return View();
         }
+
         [HttpPost]
-        public IActionResult Create(Category CatFromRequest)
+        public async Task<IActionResult> Create(Category CatFromRequest)
         {
             if (ModelState.IsValid)
             {
-
-                _unitOfWork.Category.Add(CatFromRequest);
-                _unitOfWork.Save();
+                await _unitOfWork.Category.AddAsync(CatFromRequest);
+                await _unitOfWork.SaveAsync();
                 TempData["Success"] = "Category Created Successfully";
-
-                return RedirectToAction("Index", "Category");
-
+                return RedirectToAction("Index");
             }
-            return View("Create", CatFromRequest);
-
+            return View(CatFromRequest);
         }
 
-
-
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            Category EditedCat = _unitOfWork.Category.Get(c => c.Id == id);
+            Category EditedCat = await _unitOfWork.Category.GetAsync(c => c.Id == id);
             if (EditedCat == null)
             {
                 return NotFound();
             }
-
             return View(EditedCat);
         }
 
         [HttpPost]
-        public IActionResult Edit(Category EditedCat)
+        public async Task<IActionResult> Edit(Category EditedCat)
         {
             if (EditedCat == null)
             {
                 return NotFound();
             }
 
-            _unitOfWork.Category.Update(EditedCat);
-
-            _unitOfWork.Save();
+             _unitOfWork.Category.Update(EditedCat);
+            await _unitOfWork.SaveAsync();
             TempData["Success"] = "Category Updated Successfully";
-
             return RedirectToAction("Index");
         }
 
-        public ActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-
-            Category DeletedCat = _unitOfWork.Category.Get(c => c.Id == id);
+            Category DeletedCat = await _unitOfWork.Category.GetAsync(c => c.Id == id);
             if (DeletedCat == null)
             {
                 return NotFound();
             }
-
-
             return View(DeletedCat);
         }
+
         [HttpPost]
-        public ActionResult Delete(Category DeletedCat)
+        public async Task<IActionResult> Delete(Category DeletedCat)
         {
-
-
             if (DeletedCat == null)
             {
                 return NotFound();
             }
-            _unitOfWork.Category.Delete(DeletedCat);
-            _unitOfWork.Save();
+            await _unitOfWork.Category.DeleteAsync(DeletedCat);
+            await _unitOfWork.SaveAsync();
             TempData["Success"] = "Category Deleted Successfully";
-
             return RedirectToAction("Index");
         }
-
     }
+
 }

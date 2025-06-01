@@ -8,7 +8,7 @@ namespace ECommerce.Models.ViewModels
 {
     public class ShoppingCartVM
     {
-        public List<ShoppingCart> ShoppingCartList { get; set; }
+        public IEnumerable<ShoppingCart> ShoppingCartList { get; set; }
         public OrderHeader OrderHeader { get; set; }
         
     }

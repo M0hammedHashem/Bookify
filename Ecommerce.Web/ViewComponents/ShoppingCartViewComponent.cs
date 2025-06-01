@@ -25,7 +25,7 @@ namespace Ecommerce.Web.ViewComponents
                 if (HttpContext.Session.GetInt32(SD.SessionCart) == null)
                 {
                     HttpContext.Session.SetInt32(SD.SessionCart,
-                    _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserID == claim.Value).Count());
+                    (await _unitOfWork.ShoppingCart.GetAllAsync(u => u.ApplicationUserID == claim.Value)).Count());
                 }
 
                 return View(HttpContext.Session.GetInt32(SD.SessionCart));

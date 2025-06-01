@@ -13,67 +13,75 @@ namespace Ecommerce.Web.Areas.Customer.Controllers
 {
     [Area("Customer")]
     //[Authorize(Roles =SD.Role_Customer)]
-    
+
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IUnitOfWork _unitOfWork;
+
         public HomeController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             var claimIdentity = (ClaimsIdentity)User.Identity;
             var claim = claimIdentity.FindFirst(ClaimTypes.NameIdentifier);
-        
 
-                if(claim!=null)
+            if (claim != null)
             {
-                HttpContext.Session.SetInt32(SD.SessionCart,
-               _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserID == claim.Value).Count());
-
+                var cartCount = await _unitOfWork.ShoppingCart
+                    .GetAllAsync(u => u.ApplicationUserID == claim.Value);
+                HttpContext.Session.SetInt32(SD.SessionCart, cartCount.Count());
             }
-            var Products=_unitOfWork.Product.GetAll().ToList();
-            return View(Products);
 
+            var products = await _unitOfWork.Product.GetAllAsync();
+            return View(products);
         }
-       
-        public IActionResult Details(int ProductID)
+
+        public async Task<IActionResult> Details(int ProductID)
         {
-            Product product= _unitOfWork.Product.Get(p=>p.Id==ProductID,include:"Category");
-            
-            ShoppingCart shoppingCart = new ShoppingCart { Product = product,Count=1,ProductID=product.Id };
+            var product = await _unitOfWork.Product
+                .GetAsync(p => p.Id == ProductID, include: "Category");
+
+            var shoppingCart = new ShoppingCart
+            {
+                Product = product,
+                Count = 1,
+                ProductID = product.Id
+            };
+
             return View(shoppingCart);
         }
-        [Authorize]
 
+        [Authorize]
         [HttpPost]
-        public IActionResult Details(ShoppingCart shoppingCart)
+        public async Task<IActionResult> Details(ShoppingCart shoppingCart)
         {
             var claimIdentity = (ClaimsIdentity)User.Identity;
             shoppingCart.ApplicationUserID = claimIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            ShoppingCart CartFromDb = _unitOfWork.ShoppingCart.Get(c=>c.ProductID==shoppingCart.ProductID && c.ApplicationUserID==shoppingCart.ApplicationUserID);
-            if (CartFromDb != null)
-            {
-                CartFromDb.Count += shoppingCart.Count;
-                _unitOfWork.ShoppingCart.Update(CartFromDb);
-                _unitOfWork.Save();
+            var cartFromDb = await _unitOfWork.ShoppingCart
+                .GetAsync(c => c.ProductID == shoppingCart.ProductID &&
+                              c.ApplicationUserID == shoppingCart.ApplicationUserID);
 
+            if (cartFromDb != null)
+            {
+                cartFromDb.Count += shoppingCart.Count;
+                _unitOfWork.ShoppingCart.Update(cartFromDb);
             }
             else
             {
-                _unitOfWork.ShoppingCart.Add(shoppingCart);
-                _unitOfWork.Save();
+                await _unitOfWork.ShoppingCart.AddAsync(shoppingCart);
 
-                HttpContext.Session.SetInt32(SD.SessionCart,
-               _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserID == shoppingCart.ApplicationUserID).Count());
-
+                var userCartCount = await _unitOfWork.ShoppingCart
+                    .GetAllAsync(u => u.ApplicationUserID == shoppingCart.ApplicationUserID);
+                HttpContext.Session.SetInt32(SD.SessionCart, userCartCount.Count());
             }
-            TempData["success"] = "Cart updated successfully";
 
+            await _unitOfWork.SaveAsync();
+            TempData["success"] = "Cart updated successfully";
 
             return RedirectToAction("Index");
         }
@@ -86,7 +94,10 @@ namespace Ecommerce.Web.Areas.Customer.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View(new ErrorViewModel
+            {
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+            });
         }
     }
 }

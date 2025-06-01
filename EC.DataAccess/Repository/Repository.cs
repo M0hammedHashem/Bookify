@@ -15,18 +15,24 @@ namespace ECommerce.DataAccess.Repository
     {
         protected readonly AppDbContext _db;
         private readonly DbSet<T> _dbSet;
+
         public Repository(AppDbContext db)
         {
             _db = db;
             _dbSet = _db.Set<T>();
         }
-        public void Add(T entity)
+
+        public async Task AddAsync(T entity)
         {
-            _dbSet.Add(entity); 
+            await _dbSet.AddAsync(entity);
         }
-        public T Get(Expression<Func<T, bool>> filter, string? include = null)
-        {
+
+        public async Task<T> GetAsync(
+            Expression<Func<T, bool>> filter,
+            string? include = null)
+            {
             var query = _dbSet.Where(filter);
+
             if (!string.IsNullOrEmpty(include))
             {
                 foreach (var inc in include.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
@@ -34,15 +40,18 @@ namespace ECommerce.DataAccess.Repository
                     query = query.Include(inc);
                 }
             }
-            return query.FirstOrDefault();
+
+            return await query.FirstOrDefaultAsync();
         }
 
-        public IEnumerable<T> GetAll(Expression<Func<T, bool>> ?filter = null, string? include = null)
+        public async Task<IEnumerable<T>> GetAllAsync(
+            Expression<Func<T, bool>>? filter = null,
+            string? include = null)
         {
-            IQueryable<T> query = _db.Set<T>();
-            if(filter != null)  
-                query = query.Where(filter);
+            IQueryable<T> query = _dbSet;
 
+            if (filter != null)
+                query = query.Where(filter);
 
             if (!string.IsNullOrEmpty(include))
             {
@@ -52,22 +61,22 @@ namespace ECommerce.DataAccess.Repository
                     query = query.Include(includeProp);
                 }
             }
-            return query.ToList();
 
-
-         
-       
+            return await query.ToListAsync();
         }
 
-        public void Delete(T entity)
+        public async Task DeleteAsync(T entity)
         {
             _dbSet.Remove(entity);
+            await Task.CompletedTask; 
         }
 
-        public void DeleteRange(IEnumerable<T> entity)
+        public async Task DeleteRangeAsync(IEnumerable<T> entities)
         {
-            _dbSet.RemoveRange(entity);
+            _dbSet.RemoveRange(entities);
+            await Task.CompletedTask; 
         }
-      
+
     }
+
 }

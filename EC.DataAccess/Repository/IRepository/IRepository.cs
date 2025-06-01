@@ -9,13 +9,13 @@ namespace ECommerce.DataAccess.Repository.IRepository
 {
     public interface IRepository<T>where T : class
     {
-        IEnumerable<T> GetAll(Expression<Func<T, bool>> ?filter = null, string? include = null);
-        void Add(T entity);
-
-        T Get(Expression<Func<T,bool>>filter, string? include = null);
-        void Delete(T entity);
-        void DeleteRange(IEnumerable<T> entity);
-         
+        
+            Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, string? include = null);
+            Task AddAsync(T entity);
+            Task<T> GetAsync(Expression<Func<T, bool>> filter, string? include = null);
+            Task DeleteAsync(T entity);
+            Task DeleteRangeAsync(IEnumerable<T> entities);
+        
 
     }
 }

@@ -19,7 +19,8 @@ namespace ECommerce.DataAccess.Repository
 
 
         
-        void Save();
+        Task SaveAsync();
 
     }
+
 }

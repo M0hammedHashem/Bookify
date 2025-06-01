@@ -139,11 +139,12 @@ namespace Ecommerce.Web.Areas.Identity.Pages.Account
                     Value = i
 
                 }),
-                CompanyList = _unitOfWork.Company.GetAll().Select(i => new SelectListItem
-                {
-                    Text = i.Name,
-                    Value = i.ID.ToString()
-                })
+                CompanyList = (await _unitOfWork.Company.GetAllAsync())
+                       .Select(i => new SelectListItem
+        {
+            Text = i.Name,
+            Value = i.ID.ToString()
+        })
             };
 
             ReturnUrl = returnUrl;

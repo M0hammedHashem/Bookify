@@ -10,99 +10,97 @@ using System.Security.Claims;
 
 namespace Ecommerce.Web.Areas.Admin.Controllers
 {
-    [Area("Admin")]
-    [Authorize]
     public class OrderController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
         public OrderController(IUnitOfWork unitOfWork)
         {
-            _unitOfWork=unitOfWork;
+            _unitOfWork = unitOfWork;
         }
+
         [BindProperty]
         public OrderVM OrderVM { get; set; }
+
         public IActionResult Index()
         {
             return View();
         }
-        public IActionResult Details(int orderId)
+
+        public async Task<IActionResult> Details(int orderId)
         {
             OrderVM = new()
             {
-                OrderHeader = _unitOfWork.OrderHeader.Get(u => u.ID == orderId, include: "ApplicationUser"),
-                OrderDetail = _unitOfWork.OrderDetail.GetAll(u => u.OrderHeaderId == orderId, include: "Product")
+                OrderHeader = await _unitOfWork.OrderHeader.GetAsync(u => u.ID == orderId, include: "ApplicationUser"),
+                OrderDetail = await _unitOfWork.OrderDetail.GetAllAsync(u => u.OrderHeaderId == orderId, include: "Product")
             };
 
             return View(OrderVM);
         }
 
-
-
         [HttpPost]
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
-        public IActionResult UpdateOrderDetail()
+        public async Task<IActionResult> UpdateOrderDetail()
         {
-            var orderHeaderFromDb = _unitOfWork.OrderHeader.Get(u => u.ID == OrderVM.OrderHeader.ID);
+            var orderHeaderFromDb = await _unitOfWork.OrderHeader.GetAsync(u => u.ID == OrderVM.OrderHeader.ID);
             orderHeaderFromDb.Name = OrderVM.OrderHeader.Name;
             orderHeaderFromDb.PhoneNumber = OrderVM.OrderHeader.PhoneNumber;
             orderHeaderFromDb.StreetAddress = OrderVM.OrderHeader.StreetAddress;
             orderHeaderFromDb.City = OrderVM.OrderHeader.City;
             orderHeaderFromDb.State = OrderVM.OrderHeader.State;
             orderHeaderFromDb.PostalCode = OrderVM.OrderHeader.PostalCode;
+
             if (!string.IsNullOrEmpty(OrderVM.OrderHeader.Carrier))
             {
                 orderHeaderFromDb.Carrier = OrderVM.OrderHeader.Carrier;
             }
             if (!string.IsNullOrEmpty(OrderVM.OrderHeader.TrackingNumber))
             {
-                orderHeaderFromDb.Carrier = OrderVM.OrderHeader.TrackingNumber;
+                orderHeaderFromDb.TrackingNumber = OrderVM.OrderHeader.TrackingNumber;
             }
+
             _unitOfWork.OrderHeader.Update(orderHeaderFromDb);
-            _unitOfWork.Save();
+            await _unitOfWork.SaveAsync();
 
             TempData["Success"] = "Order Details Updated Successfully.";
-
-
             return RedirectToAction(nameof(Details), new { orderId = orderHeaderFromDb.ID });
         }
 
-
         [HttpPost]
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
-        public IActionResult StartProcessing()
+        public async Task<IActionResult> StartProcessing()
         {
-            _unitOfWork.OrderHeader.UpdateStatus(OrderVM.OrderHeader.ID, SD.StatusInProcess);
-            _unitOfWork.Save();
-            TempData["Success"] = "Order Details Updated Successfully.";
+            await _unitOfWork.OrderHeader.UpdateStatusAsync(OrderVM.OrderHeader.ID, SD.StatusInProcess);
+            await _unitOfWork.SaveAsync();
+            TempData["Success"] = "Order Status Updated Successfully.";
             return RedirectToAction(nameof(Details), new { orderId = OrderVM.OrderHeader.ID });
         }
 
         [HttpPost]
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
-        public IActionResult ShipOrder()
+        public async Task<IActionResult> ShipOrder()
         {
-
-            var orderHeader = _unitOfWork.OrderHeader.Get(u => u.ID == OrderVM.OrderHeader.ID);
+            var orderHeader = await _unitOfWork.OrderHeader.GetAsync(u => u.ID == OrderVM.OrderHeader.ID);
             orderHeader.TrackingNumber = OrderVM.OrderHeader.TrackingNumber;
             orderHeader.Carrier = OrderVM.OrderHeader.Carrier;
             orderHeader.OrderStatus = SD.StatusShipped;
             orderHeader.ShippingDate = DateTime.Now;
+
             if (orderHeader.PaymentStatus == SD.PaymentStatusDelayedPayment)
             {
                 orderHeader.PaymentDueDate = DateTime.Now.AddDays(30);
             }
 
             _unitOfWork.OrderHeader.Update(orderHeader);
-            _unitOfWork.Save();
+            await _unitOfWork.SaveAsync();
             TempData["Success"] = "Order Shipped Successfully.";
             return RedirectToAction(nameof(Details), new { orderId = OrderVM.OrderHeader.ID });
         }
+
         [HttpPost]
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
-        public IActionResult CancelOrder()
+        public async Task<IActionResult> CancelOrder()
         {
-
-            var orderHeader = _unitOfWork.OrderHeader.Get(u => u.ID == OrderVM.OrderHeader.ID);
+            var orderHeader = await _unitOfWork.OrderHeader.GetAsync(u => u.ID == OrderVM.OrderHeader.ID);
 
             if (orderHeader.PaymentStatus == SD.PaymentStatusApproved)
             {
@@ -115,32 +113,29 @@ namespace Ecommerce.Web.Areas.Admin.Controllers
                 var service = new RefundService();
                 Refund refund = service.Create(options);
 
-                _unitOfWork.OrderHeader.UpdateStatus(orderHeader.ID, SD.StatusCancelled, SD.StatusRefunded);
+                await _unitOfWork.OrderHeader.UpdateStatusAsync(orderHeader.ID, SD.StatusCancelled, SD.StatusRefunded);
             }
             else
             {
-                _unitOfWork.OrderHeader.UpdateStatus(orderHeader.ID, SD.StatusCancelled, SD.StatusCancelled);
+                await _unitOfWork.OrderHeader.UpdateStatusAsync(orderHeader.ID, SD.StatusCancelled, SD.StatusCancelled);
             }
-            _unitOfWork.Save();
+
+            await _unitOfWork.SaveAsync();
             TempData["Success"] = "Order Cancelled Successfully.";
             return RedirectToAction(nameof(Details), new { orderId = OrderVM.OrderHeader.ID });
-
         }
-
-
 
         [ActionName("Details")]
         [HttpPost]
-        public IActionResult Details_PAY_NOW()
+        public async Task<IActionResult> Details_PAY_NOW()
         {
-            OrderVM.OrderHeader = _unitOfWork.OrderHeader
-                .Get(u => u.ID == OrderVM.OrderHeader.ID, include: "ApplicationUser");
-            OrderVM.OrderDetail = _unitOfWork.OrderDetail
-                .GetAll(u => u.OrderHeaderId == OrderVM.OrderHeader.ID, include: "Product");
-
+            OrderVM.OrderHeader = await _unitOfWork.OrderHeader
+                .GetAsync(u => u.ID == OrderVM.OrderHeader.ID, include: "ApplicationUser");
+            OrderVM.OrderDetail = await _unitOfWork.OrderDetail
+                .GetAllAsync(u => u.OrderHeaderId == OrderVM.OrderHeader.ID, include: "Product");
 
             //stripe logic
-            var domain = Request.Scheme + "://" + Request.Host.Value + "/";
+            var domain = $"{Request.Scheme}://{Request.Host.Value}/";
             var options = new SessionCreateOptions
             {
                 SuccessUrl = domain + $"admin/order/PaymentConfirmation?orderHeaderId={OrderVM.OrderHeader.ID}",
@@ -167,65 +162,52 @@ namespace Ecommerce.Web.Areas.Admin.Controllers
                 options.LineItems.Add(sessionLineItem);
             }
 
-
             var service = new SessionService();
             Session session = service.Create(options);
-            _unitOfWork.OrderHeader.UpdateStripePaymentID(OrderVM.OrderHeader.ID, session.Id, session.PaymentIntentId);
-            _unitOfWork.Save();
+            await _unitOfWork.OrderHeader.UpdateStripePaymentID(OrderVM.OrderHeader.ID, session.Id, session.PaymentIntentId);
+            await _unitOfWork.SaveAsync();
             Response.Headers.Add("Location", session.Url);
             return new StatusCodeResult(303);
         }
 
-        public IActionResult PaymentConfirmation(int orderHeaderId)
+        public async Task<IActionResult> PaymentConfirmation(int orderHeaderId)
         {
-
-            OrderHeader orderHeader = _unitOfWork.OrderHeader.Get(u => u.ID == orderHeaderId);
+            OrderHeader orderHeader = await _unitOfWork.OrderHeader.GetAsync(u => u.ID == orderHeaderId);
             if (orderHeader.PaymentStatus == SD.PaymentStatusDelayedPayment)
             {
-                //this is an order by company
-
                 var service = new SessionService();
                 Session session = service.Get(orderHeader.SessionId);
 
                 if (session.PaymentStatus.ToLower() == "paid")
                 {
-                    _unitOfWork.OrderHeader.UpdateStripePaymentID(orderHeaderId, session.Id, session.PaymentIntentId);
-                    _unitOfWork.OrderHeader.UpdateStatus(orderHeaderId, orderHeader.OrderStatus, SD.PaymentStatusApproved);
-                    _unitOfWork.Save();
+                   await _unitOfWork.OrderHeader.UpdateStripePaymentID(orderHeaderId, session.Id, session.PaymentIntentId);
+                    await _unitOfWork.OrderHeader.UpdateStatusAsync(orderHeaderId, orderHeader.OrderStatus, SD.PaymentStatusApproved);
+                    await _unitOfWork.SaveAsync();
                 }
-
-
             }
-
 
             return View(orderHeaderId);
         }
 
-
-
-
         #region API CALLS
 
         [HttpGet]
-        public IActionResult GetAll(string status)
+        public async Task<IActionResult> GetAll(string status)
         {
-            IEnumerable<OrderHeader> objOrderHeaders = new List<OrderHeader>() { };
-
+            IEnumerable<OrderHeader> objOrderHeaders;
 
             if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Employee))
             {
-                objOrderHeaders = _unitOfWork.OrderHeader.GetAll(include: "ApplicationUser").ToList();
+                objOrderHeaders = await _unitOfWork.OrderHeader.GetAllAsync(include: "ApplicationUser");
             }
             else
             {
-
                 var claimsIdentity = (ClaimsIdentity)User.Identity;
                 var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-                objOrderHeaders = _unitOfWork.OrderHeader
-                    .GetAll(u => u.ApplicationUserID == userId, include: "ApplicationUser");
+                objOrderHeaders = await _unitOfWork.OrderHeader
+                    .GetAllAsync(u => u.ApplicationUserID == userId, include: "ApplicationUser");
             }
-
 
             switch (status)
             {
@@ -241,15 +223,10 @@ namespace Ecommerce.Web.Areas.Admin.Controllers
                 case "approved":
                     objOrderHeaders = objOrderHeaders.Where(u => u.OrderStatus == SD.StatusApproved);
                     break;
-                default:
-                    break;
-
             }
-
 
             return Json(new { data = objOrderHeaders });
         }
-
 
         #endregion
     }

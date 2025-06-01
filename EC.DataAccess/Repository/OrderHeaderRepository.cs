@@ -18,7 +18,7 @@ namespace ECommerce.DataAccess.Repository
         {
             _db.Update(OrderHeader);
         }
-        public void UpdateStatus(int id, string orderStatus, string? paymentStatus = null)
+        public async  Task UpdateStatusAsync(int id, string orderStatus, string? paymentStatus = null)
         {
             var orderFromDb = _db.OrderHeaders.FirstOrDefault(u => u.ID == id);
             if (orderFromDb != null)
@@ -31,7 +31,8 @@ namespace ECommerce.DataAccess.Repository
             }
         }
 
-        public void UpdateStripePaymentID(int id, string sessionId, string paymentIntentId)
+
+        public async Task UpdateStripePaymentID(int id, string sessionId, string paymentIntentId)
         {
             var orderFromDb = _db.OrderHeaders.FirstOrDefault(u => u.ID  == id);
             if (!string.IsNullOrEmpty(sessionId))

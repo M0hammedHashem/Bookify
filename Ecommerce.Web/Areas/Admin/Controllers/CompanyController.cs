@@ -14,101 +14,80 @@ namespace Ecommerce.Web.Areas.Admin.Controllers
 
     public class CompanyController : Controller
     {
-        private IUnitOfWork _unitOfWork;
-        
+        private readonly IUnitOfWork _unitOfWork;
+
         public CompanyController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            
         }
-        public IActionResult Index()
+
+        public async Task<IActionResult> Index()
         {
-            List<Company> Companies = _unitOfWork.Company.GetAll().ToList();
-            return View(Companies);
+            IEnumerable<Company> companies = await _unitOfWork.Company.GetAllAsync();
+            return View(companies);
         }
-        public IActionResult UpSert(int ?id) {
 
-            //Create new CompanyVM 
-            Company company= new Company() { };
+        public async Task<IActionResult> UpSert(int? id)
+        {
+            Company company = new Company();
 
-            if (id!=null && id!=0)
+            if (id != null && id != 0)
             {
-                //here if that i pass id then it is update not create so i populate Company details
-
-                company = _unitOfWork.Company.Get(c => c.ID == id);
+                company = await _unitOfWork.Company.GetAsync(c => c.ID == id);
+                if (company == null)
+                {
+                    return NotFound();
+                }
             }
 
             return View(company);
         }
+
         [HttpPost]
-        //[ActionName("Upsert")] by defualt 
-
-        public IActionResult UpSert( Company company)
+        public async Task<IActionResult> UpSert(Company company)
         {
-
-
             if (ModelState.IsValid)
             {
-
-                if(company.ID == 0)
-                { 
-                _unitOfWork.Company.Add(company);
+                if (company.ID == 0)
+                {
+                    await _unitOfWork.Company.AddAsync(company);
                     TempData["Success"] = "Company Created Successfully";
                 }
                 else
                 {
                     _unitOfWork.Company.Update(company);
-                   
                     TempData["Success"] = "Company Updated Successfully";
                 }
 
-                _unitOfWork.Save();
-
+                await _unitOfWork.SaveAsync();
                 return RedirectToAction("Index");
-
             }
 
-            
             return View(company);
         }
 
-        //public IActionResult Delete(int id) {
-
-        //    Company Company = _unitOfWork.Company.Get(p => p.Id == id);
-
-        //    return View(Company);
-        //}
-        //[HttpPost]
-        //public IActionResult Delete(Company DeletedPrd) {
-
-        //    _unitOfWork.Company.Delete(DeletedPrd);
-        //    _unitOfWork.Save();
-
-        //    TempData["Success"] = "Company Deleted Successfully";
-        //    return RedirectToAction("Index");
-        //}
-
         #region API Calls
         [HttpGet]
-        public IActionResult GetAll() {
+        public async Task<IActionResult> GetAll()
+        {
+            IEnumerable<Company> companies = await _unitOfWork.Company.GetAllAsync();
+            return Json(new { Data = companies });
+        }
 
-            List<Company> Companies = _unitOfWork.Company.GetAll().ToList();
-            return Json(new { Data = Companies });
-        }   
         [HttpDelete]
-        public IActionResult Delete(int id) {
-
-            Company DeletedCmp = _unitOfWork.Company.Get(p=>p.ID==id);
-            if (DeletedCmp == null) {
-                return Json(new { success = false, Message = "Error happend while deleting " });
-
+        public async Task<IActionResult> Delete(int id)
+        {
+            Company deletedCmp = await _unitOfWork.Company.GetAsync(p => p.ID == id);
+            if (deletedCmp == null)
+            {
+                return Json(new { success = false, Message = "Error occurred while deleting" });
             }
-            _unitOfWork.Company.Delete(DeletedCmp);
-            _unitOfWork.Save();
+
+            await _unitOfWork.Company.DeleteAsync(deletedCmp);
+            await _unitOfWork.SaveAsync();
 
             TempData["Success"] = "Company Deleted Successfully";
-            return Json(new { success=true,Message="Company Deleted Successfully" });
-
+            return Json(new { success = true, Message = "Company Deleted Successfully" });
         }
         #endregion
     }
