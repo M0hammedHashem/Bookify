@@ -17,6 +17,9 @@ namespace ECommerce.DataAccess.Repository
         public ICategoryRepository Category { get; private set; }
 
         public IProductRepository Product { get;  private set; }
+        public IProductImageRepository ProductImage { get;  private set; }
+        
+
         public ICompanyRepository Company { get;  private set; }
         public IShoppingCartRepository ShoppingCart { get;  private set; }
         public IApplicationUserRepository ApplicationUser { get;  private set; }
@@ -28,7 +31,7 @@ namespace ECommerce.DataAccess.Repository
         public UnitOfWork(ICategoryRepository cat , IProductRepository prd , 
             ICompanyRepository com, AppDbContext dbContext, 
             IShoppingCartRepository shop, IApplicationUserRepository appUser,
-            IOrderDetailRepository orderDetail, IOrderHeaderRepository orderHeader)
+            IOrderDetailRepository orderDetail, IOrderHeaderRepository orderHeader, IProductImageRepository productImage)
         {
             Category = cat;
             Product = prd;
@@ -38,6 +41,7 @@ namespace ECommerce.DataAccess.Repository
             ApplicationUser = appUser;
             OrderDetail = orderDetail;
             OrderHeader = orderHeader;
+            ProductImage = productImage;
         }
 
 

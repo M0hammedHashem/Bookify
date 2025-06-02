@@ -12,15 +12,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ECommerce.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250531165926_Drop_CategoryProductsNavigation")]
-    partial class Drop_CategoryProductsNavigation
+    [Migration("20250602141622_AddProductImagesTable")]
+    partial class AddProductImagesTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.4")
+                .HasAnnotation("ProductVersion", "9.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -55,13 +55,31 @@ namespace ECommerce.DataAccess.Migrations
                         {
                             Id = 2,
                             DisplayOrder = 2,
-                            Name = "Scifi"
+                            Name = "SciFi"
                         },
                         new
                         {
                             Id = 3,
                             DisplayOrder = 3,
                             Name = "History"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            DisplayOrder = 4,
+                            Name = "Romance"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            DisplayOrder = 5,
+                            Name = "Fantasy"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            DisplayOrder = 6,
+                            Name = "Mystery"
                         });
                 });
 
@@ -267,10 +285,6 @@ namespace ECommerce.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<double>("ListPrice")
                         .HasColumnType("float");
 
@@ -299,9 +313,8 @@ namespace ECommerce.DataAccess.Migrations
                             Id = 1,
                             Author = "John Doe",
                             CategoryID = 1,
-                            Description = "An epic journey through magical lands",
-                            ISBN = "978-3-16-148410-0",
-                            ImageUrl = "",
+                            Description = "An epic journey through magical lands.",
+                            ISBN = "978-316-148410-0",
                             ListPrice = 25.989999999999998,
                             Price = 23.989999999999998,
                             Price100 = 15.99,
@@ -311,31 +324,90 @@ namespace ECommerce.DataAccess.Migrations
                         new
                         {
                             Id = 2,
-                            Author = "Jane Smith",
+                            Author = "Frank Herbert",
                             CategoryID = 2,
-                            Description = "Introduction to computer programming",
-                            ISBN = "978-1-23-456789-0",
-                            ImageUrl = "",
-                            ListPrice = 49.990000000000002,
-                            Price = 44.990000000000002,
-                            Price100 = 34.990000000000002,
-                            Price50 = 39.990000000000002,
-                            Title = "Programming Basics"
+                            Description = "A sci-fi masterpiece about desert politics and survival.",
+                            ISBN = "978-044-117271-9",
+                            ListPrice = 18.989999999999998,
+                            Price = 16.989999999999998,
+                            Price100 = 12.99,
+                            Price50 = 14.99,
+                            Title = "Dune"
                         },
                         new
                         {
                             Id = 3,
-                            Author = "Alan Turing",
-                            CategoryID = 1,
-                            Description = "A thrilling tech detective story",
-                            ISBN = "978-0-12-345678-9",
-                            ImageUrl = "",
-                            ListPrice = 29.949999999999999,
-                            Price = 26.5,
-                            Price100 = 21.989999999999998,
-                            Price50 = 24.0,
-                            Title = "Mystery of the Code"
+                            Author = "Yuval Noah Harari",
+                            CategoryID = 3,
+                            Description = "Explores the history of human evolution.",
+                            ISBN = "978-006-231609-7",
+                            ListPrice = 22.989999999999998,
+                            Price = 19.989999999999998,
+                            Price100 = 15.99,
+                            Price50 = 17.989999999999998,
+                            Title = "Sapiens: A Brief History of Humankind"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Author = "Jane Austen",
+                            CategoryID = 4,
+                            Description = "A classic romance about Elizabeth Bennet and Mr. Darcy.",
+                            ISBN = "978-014-143951-8",
+                            ListPrice = 12.99,
+                            Price = 10.99,
+                            Price100 = 6.9900000000000002,
+                            Price50 = 8.9900000000000002,
+                            Title = "Pride and Prejudice"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Author = "J.R.R. Tolkien",
+                            CategoryID = 5,
+                            Description = "A fantasy adventure of Bilbo Baggins and the dragon Smaug.",
+                            ISBN = "978-034-533968-3",
+                            ListPrice = 15.99,
+                            Price = 13.99,
+                            Price100 = 9.9900000000000002,
+                            Price50 = 11.99,
+                            Title = "The Hobbit"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Author = "Stieg Larsson",
+                            CategoryID = 6,
+                            Description = "A gripping mystery about a hacker and a journalist.",
+                            ISBN = "978-030-726975-1",
+                            ListPrice = 16.989999999999998,
+                            Price = 14.99,
+                            Price100 = 10.99,
+                            Price50 = 12.99,
+                            Title = "The Girl with the Dragon Tattoo"
                         });
+                });
+
+            modelBuilder.Entity("ECommerce.Models.ProductImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductImages");
                 });
 
             modelBuilder.Entity("ECommerce.Models.ShoppingCart", b =>
@@ -641,6 +713,17 @@ namespace ECommerce.DataAccess.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("ECommerce.Models.ProductImage", b =>
+                {
+                    b.HasOne("ECommerce.Models.Product", "Product")
+                        .WithMany("ProductImages")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("ECommerce.Models.ShoppingCart", b =>
                 {
                     b.HasOne("ECommerce.Models.ApplicationUser", "ApplicationUser")
@@ -714,15 +797,15 @@ namespace ECommerce.DataAccess.Migrations
             modelBuilder.Entity("ECommerce.Models.ApplicationUser", b =>
                 {
                     b.HasOne("ECommerce.Models.Company", "Company")
-                        .WithMany("Users")
+                        .WithMany()
                         .HasForeignKey("CompanyID");
 
                     b.Navigation("Company");
                 });
 
-            modelBuilder.Entity("ECommerce.Models.Company", b =>
+            modelBuilder.Entity("ECommerce.Models.Product", b =>
                 {
-                    b.Navigation("Users");
+                    b.Navigation("ProductImages");
                 });
 #pragma warning restore 612, 618
         }

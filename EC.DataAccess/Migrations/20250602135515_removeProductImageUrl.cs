@@ -5,10 +5,18 @@
 namespace ECommerce.DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class AddImageUrl2Product : Migration
+    public partial class removeProductImageUrl : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropColumn(
+                name: "ImageUrl",
+                table: "Products");
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
                 name: "ImageUrl",
@@ -21,51 +29,43 @@ namespace ECommerce.DataAccess.Migrations
                 table: "Products",
                 keyColumn: "Id",
                 keyValue: 1,
-                columns: new[] { "CategoryID", "ImageUrl" },
-                values: new object[] { 1, "" });
+                column: "ImageUrl",
+                value: "");
 
             migrationBuilder.UpdateData(
                 table: "Products",
                 keyColumn: "Id",
                 keyValue: 2,
-                columns: new[] { "CategoryID", "ImageUrl" },
-                values: new object[] { 2, "" });
+                column: "ImageUrl",
+                value: "");
 
             migrationBuilder.UpdateData(
                 table: "Products",
                 keyColumn: "Id",
                 keyValue: 3,
-                columns: new[] { "CategoryID", "ImageUrl" },
-                values: new object[] { 1, "" });
-        }
-
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.DropColumn(
-                name: "ImageUrl",
-                table: "Products");
+                column: "ImageUrl",
+                value: "");
 
             migrationBuilder.UpdateData(
                 table: "Products",
                 keyColumn: "Id",
-                keyValue: 1,
-                column: "CategoryID",
-                value: 0);
+                keyValue: 4,
+                column: "ImageUrl",
+                value: "");
 
             migrationBuilder.UpdateData(
                 table: "Products",
                 keyColumn: "Id",
-                keyValue: 2,
-                column: "CategoryID",
-                value: 0);
+                keyValue: 5,
+                column: "ImageUrl",
+                value: "");
 
             migrationBuilder.UpdateData(
                 table: "Products",
                 keyColumn: "Id",
-                keyValue: 3,
-                column: "CategoryID",
-                value: 0);
+                keyValue: 6,
+                column: "ImageUrl",
+                value: "");
         }
     }
 }

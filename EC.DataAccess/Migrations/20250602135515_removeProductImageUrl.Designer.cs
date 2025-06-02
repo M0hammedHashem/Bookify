@@ -12,15 +12,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ECommerce.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250517112158_addCompanyUserRelationship")]
-    partial class addCompanyUserRelationship
+    [Migration("20250602135515_removeProductImageUrl")]
+    partial class removeProductImageUrl
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.4")
+                .HasAnnotation("ProductVersion", "9.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -55,13 +55,31 @@ namespace ECommerce.DataAccess.Migrations
                         {
                             Id = 2,
                             DisplayOrder = 2,
-                            Name = "Scifi"
+                            Name = "SciFi"
                         },
                         new
                         {
                             Id = 3,
                             DisplayOrder = 3,
                             Name = "History"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            DisplayOrder = 4,
+                            Name = "Romance"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            DisplayOrder = 5,
+                            Name = "Fantasy"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            DisplayOrder = 6,
+                            Name = "Mystery"
                         });
                 });
 
@@ -139,6 +157,111 @@ namespace ECommerce.DataAccess.Migrations
                         });
                 });
 
+            modelBuilder.Entity("ECommerce.Models.OrderDetail", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<int>("Count")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OrderHeaderId")
+                        .HasColumnType("int");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("float");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("OrderHeaderId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("OrderDetails");
+                });
+
+            modelBuilder.Entity("ECommerce.Models.OrderHeader", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<string>("ApplicationUserID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Carrier")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("OrderDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("OrderStatus")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("OrderTotal")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("PaymentDueDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PaymentIntentId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PaymentStatus")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PostalCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SessionId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ShippingDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StreetAddress")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TrackingNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("ApplicationUserID");
+
+                    b.ToTable("OrderHeaders");
+                });
+
             modelBuilder.Entity("ECommerce.Models.Product", b =>
                 {
                     b.Property<int>("Id")
@@ -159,10 +282,6 @@ namespace ECommerce.DataAccess.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ISBN")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ImageUrl")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -194,9 +313,8 @@ namespace ECommerce.DataAccess.Migrations
                             Id = 1,
                             Author = "John Doe",
                             CategoryID = 1,
-                            Description = "An epic journey through magical lands",
-                            ISBN = "978-3-16-148410-0",
-                            ImageUrl = "",
+                            Description = "An epic journey through magical lands.",
+                            ISBN = "978-316-148410-0",
                             ListPrice = 25.989999999999998,
                             Price = 23.989999999999998,
                             Price100 = 15.99,
@@ -206,31 +324,95 @@ namespace ECommerce.DataAccess.Migrations
                         new
                         {
                             Id = 2,
-                            Author = "Jane Smith",
+                            Author = "Frank Herbert",
                             CategoryID = 2,
-                            Description = "Introduction to computer programming",
-                            ISBN = "978-1-23-456789-0",
-                            ImageUrl = "",
-                            ListPrice = 49.990000000000002,
-                            Price = 44.990000000000002,
-                            Price100 = 34.990000000000002,
-                            Price50 = 39.990000000000002,
-                            Title = "Programming Basics"
+                            Description = "A sci-fi masterpiece about desert politics and survival.",
+                            ISBN = "978-044-117271-9",
+                            ListPrice = 18.989999999999998,
+                            Price = 16.989999999999998,
+                            Price100 = 12.99,
+                            Price50 = 14.99,
+                            Title = "Dune"
                         },
                         new
                         {
                             Id = 3,
-                            Author = "Alan Turing",
-                            CategoryID = 1,
-                            Description = "A thrilling tech detective story",
-                            ISBN = "978-0-12-345678-9",
-                            ImageUrl = "",
-                            ListPrice = 29.949999999999999,
-                            Price = 26.5,
-                            Price100 = 21.989999999999998,
-                            Price50 = 24.0,
-                            Title = "Mystery of the Code"
+                            Author = "Yuval Noah Harari",
+                            CategoryID = 3,
+                            Description = "Explores the history of human evolution.",
+                            ISBN = "978-006-231609-7",
+                            ListPrice = 22.989999999999998,
+                            Price = 19.989999999999998,
+                            Price100 = 15.99,
+                            Price50 = 17.989999999999998,
+                            Title = "Sapiens: A Brief History of Humankind"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Author = "Jane Austen",
+                            CategoryID = 4,
+                            Description = "A classic romance about Elizabeth Bennet and Mr. Darcy.",
+                            ISBN = "978-014-143951-8",
+                            ListPrice = 12.99,
+                            Price = 10.99,
+                            Price100 = 6.9900000000000002,
+                            Price50 = 8.9900000000000002,
+                            Title = "Pride and Prejudice"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Author = "J.R.R. Tolkien",
+                            CategoryID = 5,
+                            Description = "A fantasy adventure of Bilbo Baggins and the dragon Smaug.",
+                            ISBN = "978-034-533968-3",
+                            ListPrice = 15.99,
+                            Price = 13.99,
+                            Price100 = 9.9900000000000002,
+                            Price50 = 11.99,
+                            Title = "The Hobbit"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Author = "Stieg Larsson",
+                            CategoryID = 6,
+                            Description = "A gripping mystery about a hacker and a journalist.",
+                            ISBN = "978-030-726975-1",
+                            ListPrice = 16.989999999999998,
+                            Price = 14.99,
+                            Price100 = 10.99,
+                            Price50 = 12.99,
+                            Title = "The Girl with the Dragon Tattoo"
                         });
+                });
+
+            modelBuilder.Entity("ECommerce.Models.ShoppingCart", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<string>("ApplicationUserID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Count")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductID")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("ApplicationUserID");
+
+                    b.HasIndex("ProductID");
+
+                    b.ToTable("ShoppingCarts");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -468,15 +650,64 @@ namespace ECommerce.DataAccess.Migrations
                     b.HasDiscriminator().HasValue("ApplicationUser");
                 });
 
+            modelBuilder.Entity("ECommerce.Models.OrderDetail", b =>
+                {
+                    b.HasOne("ECommerce.Models.OrderHeader", "OrderHeader")
+                        .WithMany()
+                        .HasForeignKey("OrderHeaderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ECommerce.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("OrderHeader");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("ECommerce.Models.OrderHeader", b =>
+                {
+                    b.HasOne("ECommerce.Models.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+                });
+
             modelBuilder.Entity("ECommerce.Models.Product", b =>
                 {
                     b.HasOne("ECommerce.Models.Category", "Category")
-                        .WithMany("Products")
+                        .WithMany()
                         .HasForeignKey("CategoryID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("ECommerce.Models.ShoppingCart", b =>
+                {
+                    b.HasOne("ECommerce.Models.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ECommerce.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -533,20 +764,10 @@ namespace ECommerce.DataAccess.Migrations
             modelBuilder.Entity("ECommerce.Models.ApplicationUser", b =>
                 {
                     b.HasOne("ECommerce.Models.Company", "Company")
-                        .WithMany("Users")
+                        .WithMany()
                         .HasForeignKey("CompanyID");
 
                     b.Navigation("Company");
-                });
-
-            modelBuilder.Entity("ECommerce.Models.Category", b =>
-                {
-                    b.Navigation("Products");
-                });
-
-            modelBuilder.Entity("ECommerce.Models.Company", b =>
-                {
-                    b.Navigation("Users");
                 });
 #pragma warning restore 612, 618
         }

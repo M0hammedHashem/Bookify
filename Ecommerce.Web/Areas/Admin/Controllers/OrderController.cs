@@ -10,6 +10,8 @@ using System.Security.Claims;
 
 namespace Ecommerce.Web.Areas.Admin.Controllers
 {
+    [Area("Admin")]
+
     public class OrderController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;

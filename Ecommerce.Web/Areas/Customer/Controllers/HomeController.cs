@@ -36,14 +36,14 @@ namespace Ecommerce.Web.Areas.Customer.Controllers
                 HttpContext.Session.SetInt32(SD.SessionCart, cartCount.Count());
             }
 
-            var products = await _unitOfWork.Product.GetAllAsync();
+            var products = await _unitOfWork.Product.GetAllAsync(include:"Category,ProductImages");
             return View(products);
         }
 
         public async Task<IActionResult> Details(int ProductID)
         {
             var product = await _unitOfWork.Product
-                .GetAsync(p => p.Id == ProductID, include: "Category");
+                .GetAsync(p => p.Id == ProductID, include: "Category,ProductImages");
 
             var shoppingCart = new ShoppingCart
             {

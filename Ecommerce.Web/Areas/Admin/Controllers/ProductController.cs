@@ -45,66 +45,115 @@ namespace Ecommerce.Web.Areas.Admin.Controllers
 
             if (id != null && id != 0)
             {
-                productVM.Product = await _unitOfWork.Product.GetAsync(p => p.Id == id);
+                productVM.Product = await _unitOfWork.Product.GetAsync(p => p.Id == id,include:"ProductImages");
             }
 
             return View(productVM);
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpSert(ProductVM productVM, IFormFile? file)
+        public async Task<IActionResult> UpSert(ProductVM productVM, List<IFormFile>? files)
         {
-            if (ModelState.IsValid)
-            {
-                string rootPath = _webHostEnvironment.WebRootPath;
 
-                if (file != null)
+         
+                if (ModelState.IsValid)
                 {
-                    string filename = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                    string productPath = Path.Combine(rootPath, @"images\product");
-
-                    if (!string.IsNullOrEmpty(productVM.Product.ImageUrl))
+                    if (productVM.Product.Id == 0)
                     {
-                        string oldImgPath = Path.Combine(rootPath, productVM.Product.ImageUrl.TrimStart('\\'));
-                        if (System.IO.File.Exists(oldImgPath))
+                        await _unitOfWork.Product.AddAsync(productVM.Product);
+
+                        TempData["success"] = "Product Created Successfully";
+                    }
+                    else
+                    {
+                        _unitOfWork.Product.Update(productVM.Product);
+
+                        TempData["success"] = "Product Updated Successfully";
+                    }
+                    await _unitOfWork.SaveAsync();
+                    string wwwRootPath = _webHostEnvironment.WebRootPath;
+
+                    if (files != null)
+                    {
+
+                        foreach (IFormFile file in files)
                         {
-                            System.IO.File.Delete(oldImgPath);
+                            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                            string productPath = @"images\products\product-" + productVM.Product.Id;
+                            string finalPath = Path.Combine(wwwRootPath, productPath);
+
+                            if (!Directory.Exists(finalPath))
+                                Directory.CreateDirectory(finalPath);
+
+                            using (var fileStream = new FileStream(Path.Combine(finalPath, fileName), FileMode.Create))
+                            {
+                                file.CopyTo(fileStream);
+                            }
+
+                            ProductImage productImage = new()
+                            {
+                                ImageUrl = @"\" + productPath + @"\" + fileName,
+                                ProductId = productVM.Product.Id,
+                            };
+
+                            if (productVM.Product.ProductImages == null)
+                                productVM.Product.ProductImages = new List<ProductImage>();
+
+                            productVM.Product.ProductImages.Add(productImage);
+
                         }
+
+                        _unitOfWork.Product.Update(productVM.Product);
+                        await _unitOfWork.SaveAsync();
+
                     }
 
-                    using (var fileStream = new FileStream(Path.Combine(productPath, filename), FileMode.Create))
-                    {
-                        await file.CopyToAsync(fileStream);
-                    }
+                    TempData["success"] = "Product created/updated successfully";
 
-                    productVM.Product.ImageUrl = @"\images\product\" + filename;
-                }
-
-                if (productVM.Product.Id == 0)
-                {
-                    await _unitOfWork.Product.AddAsync(productVM.Product);
-                    TempData["Success"] = "Product Created Successfully";
+                    return RedirectToAction("Index");
                 }
                 else
                 {
-                    _unitOfWork.Product.Update(productVM.Product);
-                    TempData["Success"] = "Product Updated Successfully";
+                    productVM.CategoryList = (await _unitOfWork.Category.GetAllAsync()).Select(u => new SelectListItem
+                    {
+                        Text = u.Name,
+                        Value = u.Id.ToString()
+                    });
+                    return View(productVM);
                 }
 
+
+            
+        }
+
+        public async Task<IActionResult> DeleteImage(int imageId)
+        {
+            var imageToBeDeleted =await _unitOfWork.ProductImage.GetAsync(u => u.Id == imageId);
+            int productId = imageToBeDeleted.ProductId;
+            if (imageToBeDeleted != null)
+            {
+                if (!string.IsNullOrEmpty(imageToBeDeleted.ImageUrl))
+                {
+                    var oldImagePath =
+                                   Path.Combine(_webHostEnvironment.WebRootPath,
+                                   imageToBeDeleted.ImageUrl.TrimStart('\\'));
+
+                    if (System.IO.File.Exists(oldImagePath))
+                    {
+                        System.IO.File.Delete(oldImagePath);
+                    }
+                }
+
+               await _unitOfWork.ProductImage.DeleteAsync(imageToBeDeleted);
                 await _unitOfWork.SaveAsync();
-                return RedirectToAction("Index");
+
+                TempData["success"] = "Deleted successfully";
             }
 
-            // If we got this far, something failed, redisplay form
-            productVM.CategoryList = (await _unitOfWork.Category.GetAllAsync())
-                .Select(c => new SelectListItem
-                {
-                    Text = c.Name,
-                    Value = c.Id.ToString()
-                }).ToList();
-
-            return View(productVM);
+            return RedirectToAction(nameof(UpSert), new { id = productId });
         }
+
+
 
         #region API Calls
         [HttpGet]
@@ -117,25 +166,31 @@ namespace Ecommerce.Web.Areas.Admin.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
-            var productToDelete = await _unitOfWork.Product.GetAsync(p => p.Id == id);
-            if (productToDelete == null)
+            var productToBeDeleted = await _unitOfWork.Product.GetAsync(u => u.Id == id);
+            if (productToBeDeleted == null)
             {
-                return Json(new { success = false, Message = "Error while deleting" });
+                return Json(new { success = false, Message = "Error While Deleting" });
             }
 
-            var oldImagePath = Path.Combine(_webHostEnvironment.WebRootPath,
-                productToDelete.ImageUrl.TrimStart('\\'));
+            string productPath = @"images\products\product-" + id;
+            string finalPath = Path.Combine(_webHostEnvironment.WebRootPath, productPath);
 
-            if (System.IO.File.Exists(oldImagePath))
+            if (Directory.Exists(finalPath))
             {
-                System.IO.File.Delete(oldImagePath);
+                string[] filePaths = Directory.GetFiles(finalPath);
+                foreach (string filePath in filePaths)
+                {
+                    System.IO.File.Delete(filePath);
+                }
+
+                Directory.Delete(finalPath);
             }
 
-            await _unitOfWork.Product.DeleteAsync(productToDelete);
-            await _unitOfWork.SaveAsync();
+           await _unitOfWork.Product.DeleteAsync(productToBeDeleted);
+           await _unitOfWork.SaveAsync();
 
-            TempData["Success"] = "Product Deleted Successfully";
-            return Json(new { success = true, Message = "Product Deleted Successfully" });
+            return Json(new { success = true, message = "Delete Successful" });
+
         }
         #endregion
     }

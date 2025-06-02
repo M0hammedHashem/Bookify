@@ -33,6 +33,7 @@ builder.Services.AddScoped<IOrderHeaderRepository, OrderHeaderRepository>();
 builder.Services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
 builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
+builder.Services.AddScoped<IProductImageRepository, ProductImageRepository>();
 
 builder.Services.AddAuthentication().AddFacebook(option=>
 { option.AppId = "1873666016767637";
@@ -73,7 +74,7 @@ app.UseRouting();
 app.UseAuthentication();    
 app.UseAuthorization();
 app.UseSession();
-//SeedDatabase();
+SeedDatabase();
 
 StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
 
