@@ -29,22 +29,26 @@ namespace Ecommerce.Web.Areas.Customer.Controllers
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            ShoppingCartVM = new ShoppingCartVM()
+
+            ShoppingCartVM = new()
             {
-                OrderHeader = new OrderHeader(),
-                ShoppingCartList = await _unitOfWork.ShoppingCart
-                    .GetAllAsync(sh => sh.ApplicationUserID == userId, include: "Product")
+                ShoppingCartList = await _unitOfWork.ShoppingCart.GetAllAsync(u => u.ApplicationUserID == userId,
+                include: "Product"),
+                OrderHeader = new()
             };
+
+            IEnumerable<ProductImage> productImages = await _unitOfWork.ProductImage.GetAllAsync();
 
             foreach (var cart in ShoppingCartVM.ShoppingCartList)
             {
+                cart.Product.ProductImages = productImages.Where(u => u.ProductId == cart.Product.Id).ToList();
                 cart.Price = GetPriceBasedOnPrdQuantity(cart);
-                ShoppingCartVM.OrderHeader.OrderTotal += cart.Price * cart.Count;
+                ShoppingCartVM.OrderHeader.OrderTotal += (cart.Price * cart.Count);
             }
 
             return View(ShoppingCartVM);
         }
-
+        [Authorize]
         public async Task<IActionResult> Summary()
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
@@ -77,6 +81,7 @@ namespace Ecommerce.Web.Areas.Customer.Controllers
 
         [HttpPost]
         [ActionName("Summary")]
+        [Authorize]
         public async Task<IActionResult> SummaryPOST()
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
@@ -165,7 +170,7 @@ namespace Ecommerce.Web.Areas.Customer.Controllers
 
             return RedirectToAction(nameof(OrderConfirmation), new { id = ShoppingCartVM.OrderHeader.ID });
         }
-
+        [Authorize]
         public async Task<IActionResult> OrderConfirmation(int id)
         {
             var orderHeader = await _unitOfWork.OrderHeader
@@ -194,6 +199,7 @@ namespace Ecommerce.Web.Areas.Customer.Controllers
 
             return View(id);
         }
+        [Authorize]
 
         public async Task<IActionResult> Minus(int id)
         {
@@ -219,6 +225,7 @@ namespace Ecommerce.Web.Areas.Customer.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+        [Authorize]
 
         public async Task<IActionResult> Plus(int id)
         {
@@ -228,6 +235,7 @@ namespace Ecommerce.Web.Areas.Customer.Controllers
             await _unitOfWork.SaveAsync();
             return RedirectToAction(nameof(Index));
         }
+        [Authorize]
 
         public async Task<IActionResult> Remove(int id)
         {

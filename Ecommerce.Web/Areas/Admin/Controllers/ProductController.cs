@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 
 namespace Ecommerce.Web.Areas.Admin.Controllers
 {
@@ -71,44 +73,50 @@ namespace Ecommerce.Web.Areas.Admin.Controllers
                         TempData["success"] = "Product Updated Successfully";
                     }
                     await _unitOfWork.SaveAsync();
-                    string wwwRootPath = _webHostEnvironment.WebRootPath;
+                string wwwRootPath = _webHostEnvironment.WebRootPath;
 
-                    if (files != null)
+                if (files != null)
+                {
+                    foreach (IFormFile file in files)
                     {
+                        string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                        string productPath = @"images\products\product-" + productVM.Product.Id;
+                        string finalPath = Path.Combine(wwwRootPath, productPath);
 
-                        foreach (IFormFile file in files)
+                        if (!Directory.Exists(finalPath))
+                            Directory.CreateDirectory(finalPath);
+
+                        // Resize and save the image
+                        using (var image = await Image.LoadAsync(file.OpenReadStream()))
                         {
-                            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                            string productPath = @"images\products\product-" + productVM.Product.Id;
-                            string finalPath = Path.Combine(wwwRootPath, productPath);
-
-                            if (!Directory.Exists(finalPath))
-                                Directory.CreateDirectory(finalPath);
-
-                            using (var fileStream = new FileStream(Path.Combine(finalPath, fileName), FileMode.Create))
+                            // Resize to 500x600 with Crop mode (maintains aspect ratio)
+                            image.Mutate(x => x.Resize(new ResizeOptions
                             {
-                                file.CopyTo(fileStream);
-                            }
+                                Size = new Size(500, 600),
+                                Mode = ResizeMode.Crop // Crop to fit (like CSS 'object-fit: cover')
+                            }));
 
-                            ProductImage productImage = new()
-                            {
-                                ImageUrl = @"\" + productPath + @"\" + fileName,
-                                ProductId = productVM.Product.Id,
-                            };
-
-                            if (productVM.Product.ProductImages == null)
-                                productVM.Product.ProductImages = new List<ProductImage>();
-
-                            productVM.Product.ProductImages.Add(productImage);
-
+                            // Save the resized image
+                            await image.SaveAsync(Path.Combine(finalPath, fileName));
                         }
 
-                        _unitOfWork.Product.Update(productVM.Product);
-                        await _unitOfWork.SaveAsync();
+                        ProductImage productImage = new()
+                        {
+                            ImageUrl = @"\" + productPath + @"\" + fileName,
+                            ProductId = productVM.Product.Id,
+                        };
 
+                        if (productVM.Product.ProductImages == null)
+                            productVM.Product.ProductImages = new List<ProductImage>();
+
+                        productVM.Product.ProductImages.Add(productImage);
                     }
 
-                    TempData["success"] = "Product created/updated successfully";
+                    _unitOfWork.Product.Update(productVM.Product);
+                    await _unitOfWork.SaveAsync();
+                }
+
+                TempData["success"] = "Product created/updated successfully";
 
                     return RedirectToAction("Index");
                 }

@@ -74,7 +74,7 @@ app.UseRouting();
 app.UseAuthentication();    
 app.UseAuthorization();
 app.UseSession();
-SeedDatabase();
+InitializeDatabase();
 
 StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
 
@@ -85,7 +85,7 @@ app.MapControllerRoute(
 
 app.Run();
 
-void SeedDatabase()
+void InitializeDatabase()
 {
     using (var scope = app.Services.CreateScope())
     {
