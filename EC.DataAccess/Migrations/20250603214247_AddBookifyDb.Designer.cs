@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ECommerce.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250602123836_AddBookifyDb")]
+    [Migration("20250603214247_AddBookifyDb")]
     partial class AddBookifyDb
     {
         /// <inheritdoc />
@@ -285,10 +285,6 @@ namespace ECommerce.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<double>("ListPrice")
                         .HasColumnType("float");
 
@@ -319,7 +315,6 @@ namespace ECommerce.DataAccess.Migrations
                             CategoryID = 1,
                             Description = "An epic journey through magical lands.",
                             ISBN = "978-316-148410-0",
-                            ImageUrl = "",
                             ListPrice = 25.989999999999998,
                             Price = 23.989999999999998,
                             Price100 = 15.99,
@@ -333,7 +328,6 @@ namespace ECommerce.DataAccess.Migrations
                             CategoryID = 2,
                             Description = "A sci-fi masterpiece about desert politics and survival.",
                             ISBN = "978-044-117271-9",
-                            ImageUrl = "",
                             ListPrice = 18.989999999999998,
                             Price = 16.989999999999998,
                             Price100 = 12.99,
@@ -347,7 +341,6 @@ namespace ECommerce.DataAccess.Migrations
                             CategoryID = 3,
                             Description = "Explores the history of human evolution.",
                             ISBN = "978-006-231609-7",
-                            ImageUrl = "",
                             ListPrice = 22.989999999999998,
                             Price = 19.989999999999998,
                             Price100 = 15.99,
@@ -361,7 +354,6 @@ namespace ECommerce.DataAccess.Migrations
                             CategoryID = 4,
                             Description = "A classic romance about Elizabeth Bennet and Mr. Darcy.",
                             ISBN = "978-014-143951-8",
-                            ImageUrl = "",
                             ListPrice = 12.99,
                             Price = 10.99,
                             Price100 = 6.9900000000000002,
@@ -375,7 +367,6 @@ namespace ECommerce.DataAccess.Migrations
                             CategoryID = 5,
                             Description = "A fantasy adventure of Bilbo Baggins and the dragon Smaug.",
                             ISBN = "978-034-533968-3",
-                            ImageUrl = "",
                             ListPrice = 15.99,
                             Price = 13.99,
                             Price100 = 9.9900000000000002,
@@ -389,13 +380,34 @@ namespace ECommerce.DataAccess.Migrations
                             CategoryID = 6,
                             Description = "A gripping mystery about a hacker and a journalist.",
                             ISBN = "978-030-726975-1",
-                            ImageUrl = "",
                             ListPrice = 16.989999999999998,
                             Price = 14.99,
                             Price100 = 10.99,
                             Price50 = 12.99,
                             Title = "The Girl with the Dragon Tattoo"
                         });
+                });
+
+            modelBuilder.Entity("ECommerce.Models.ProductImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductImages");
                 });
 
             modelBuilder.Entity("ECommerce.Models.ShoppingCart", b =>
@@ -412,6 +424,9 @@ namespace ECommerce.DataAccess.Migrations
 
                     b.Property<int>("Count")
                         .HasColumnType("int");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("float");
 
                     b.Property<int>("ProductID")
                         .HasColumnType("int");
@@ -649,6 +664,10 @@ namespace ECommerce.DataAccess.Migrations
                     b.Property<string>("PostalCode")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("State")
                         .HasColumnType("nvarchar(max)");
 
@@ -699,6 +718,17 @@ namespace ECommerce.DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("ECommerce.Models.ProductImage", b =>
+                {
+                    b.HasOne("ECommerce.Models.Product", "Product")
+                        .WithMany("ProductImages")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("ECommerce.Models.ShoppingCart", b =>
@@ -778,6 +808,11 @@ namespace ECommerce.DataAccess.Migrations
                         .HasForeignKey("CompanyID");
 
                     b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("ECommerce.Models.Product", b =>
+                {
+                    b.Navigation("ProductImages");
                 });
 #pragma warning restore 612, 618
         }

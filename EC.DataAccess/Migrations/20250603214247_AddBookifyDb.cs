@@ -94,8 +94,7 @@ namespace ECommerce.DataAccess.Migrations
                     Price = table.Column<double>(type: "float", nullable: false),
                     Price50 = table.Column<double>(type: "float", nullable: false),
                     Price100 = table.Column<double>(type: "float", nullable: false),
-                    CategoryID = table.Column<int>(type: "int", nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    CategoryID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -120,6 +119,7 @@ namespace ECommerce.DataAccess.Migrations
                     State = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PostalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CompanyID = table.Column<int>(type: "int", nullable: true),
+                    Role = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -143,6 +143,26 @@ namespace ECommerce.DataAccess.Migrations
                         column: x => x.CompanyID,
                         principalTable: "Companies",
                         principalColumn: "ID");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProductImages",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ProductId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductImages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProductImages_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -274,6 +294,7 @@ namespace ECommerce.DataAccess.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ProductID = table.Column<int>(type: "int", nullable: false),
                     Count = table.Column<int>(type: "int", nullable: false),
+                    Price = table.Column<double>(type: "float", nullable: false),
                     ApplicationUserID = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
@@ -347,15 +368,15 @@ namespace ECommerce.DataAccess.Migrations
 
             migrationBuilder.InsertData(
                 table: "Products",
-                columns: new[] { "Id", "Author", "CategoryID", "Description", "ISBN", "ImageUrl", "ListPrice", "Price", "Price100", "Price50", "Title" },
+                columns: new[] { "Id", "Author", "CategoryID", "Description", "ISBN", "ListPrice", "Price", "Price100", "Price50", "Title" },
                 values: new object[,]
                 {
-                    { 1, "John Doe", 1, "An epic journey through magical lands.", "978-316-148410-0", "", 25.989999999999998, 23.989999999999998, 15.99, 20.989999999999998, "The Great Adventure" },
-                    { 2, "Frank Herbert", 2, "A sci-fi masterpiece about desert politics and survival.", "978-044-117271-9", "", 18.989999999999998, 16.989999999999998, 12.99, 14.99, "Dune" },
-                    { 3, "Yuval Noah Harari", 3, "Explores the history of human evolution.", "978-006-231609-7", "", 22.989999999999998, 19.989999999999998, 15.99, 17.989999999999998, "Sapiens: A Brief History of Humankind" },
-                    { 4, "Jane Austen", 4, "A classic romance about Elizabeth Bennet and Mr. Darcy.", "978-014-143951-8", "", 12.99, 10.99, 6.9900000000000002, 8.9900000000000002, "Pride and Prejudice" },
-                    { 5, "J.R.R. Tolkien", 5, "A fantasy adventure of Bilbo Baggins and the dragon Smaug.", "978-034-533968-3", "", 15.99, 13.99, 9.9900000000000002, 11.99, "The Hobbit" },
-                    { 6, "Stieg Larsson", 6, "A gripping mystery about a hacker and a journalist.", "978-030-726975-1", "", 16.989999999999998, 14.99, 10.99, 12.99, "The Girl with the Dragon Tattoo" }
+                    { 1, "John Doe", 1, "An epic journey through magical lands.", "978-316-148410-0", 25.989999999999998, 23.989999999999998, 15.99, 20.989999999999998, "The Great Adventure" },
+                    { 2, "Frank Herbert", 2, "A sci-fi masterpiece about desert politics and survival.", "978-044-117271-9", 18.989999999999998, 16.989999999999998, 12.99, 14.99, "Dune" },
+                    { 3, "Yuval Noah Harari", 3, "Explores the history of human evolution.", "978-006-231609-7", 22.989999999999998, 19.989999999999998, 15.99, 17.989999999999998, "Sapiens: A Brief History of Humankind" },
+                    { 4, "Jane Austen", 4, "A classic romance about Elizabeth Bennet and Mr. Darcy.", "978-014-143951-8", 12.99, 10.99, 6.9900000000000002, 8.9900000000000002, "Pride and Prejudice" },
+                    { 5, "J.R.R. Tolkien", 5, "A fantasy adventure of Bilbo Baggins and the dragon Smaug.", "978-034-533968-3", 15.99, 13.99, 9.9900000000000002, 11.99, "The Hobbit" },
+                    { 6, "Stieg Larsson", 6, "A gripping mystery about a hacker and a journalist.", "978-030-726975-1", 16.989999999999998, 14.99, 10.99, 12.99, "The Girl with the Dragon Tattoo" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -418,6 +439,11 @@ namespace ECommerce.DataAccess.Migrations
                 column: "ApplicationUserID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ProductImages_ProductId",
+                table: "ProductImages",
+                column: "ProductId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Products_CategoryID",
                 table: "Products",
                 column: "CategoryID");
@@ -453,6 +479,9 @@ namespace ECommerce.DataAccess.Migrations
 
             migrationBuilder.DropTable(
                 name: "OrderDetails");
+
+            migrationBuilder.DropTable(
+                name: "ProductImages");
 
             migrationBuilder.DropTable(
                 name: "ShoppingCarts");

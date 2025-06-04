@@ -23,6 +23,7 @@ namespace Ecommerce.Web.Areas.Admin.Controllers
         [BindProperty]
         public OrderVM OrderVM { get; set; }
 
+        [Authorize]
         public IActionResult Index()
         {
             return View();

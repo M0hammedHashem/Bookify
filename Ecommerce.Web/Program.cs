@@ -6,12 +6,16 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using ECommerce.Utility;
 using Stripe;
-using ECommerce.DataAccess.DbInitializer;
+using ECommerce.DataAccess;
+using ECommerce.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("DefaultConnection")
     ));
+
+builder.Services.AddDataAccessLayerServices();
+builder.Services.AddModelsServices();
 
 
 builder.Services.AddIdentity<IdentityUser,IdentityRole>().AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
@@ -23,17 +27,6 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
 });
 
-builder.Services.AddScoped<IUnitOfWork,UnitOfWork>();
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
-builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
-builder.Services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
-builder.Services.AddScoped<IShoppingCartRepository, ShoppingCartRepository>();
-builder.Services.AddScoped<IOrderHeaderRepository, OrderHeaderRepository>();
-builder.Services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
-builder.Services.AddScoped<IDbInitializer, DbInitializer>();
-builder.Services.AddScoped<IEmailSender, EmailSender>();
-builder.Services.AddScoped<IProductImageRepository, ProductImageRepository>();
 
 builder.Services.AddAuthentication().AddFacebook(option=>
 { option.AppId = "1873666016767637";
