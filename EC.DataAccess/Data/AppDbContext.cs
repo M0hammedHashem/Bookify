@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using ECommerce.Models;
+using Bookify.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
-namespace ECommerce.DataAccess.Data
+namespace Bookify.DataAccess.Data
 {
     public class AppDbContext : IdentityDbContext<IdentityUser>
     {

@@ -1,14 +1,14 @@
-﻿using ECommerce.DataAccess.Repository;
-using ECommerce.Models;
-using ECommerce.Models.ViewModels;
-using ECommerce.Utility;
+﻿using Bookify.DataAccess.Repository;
+using Bookify.Models;
+using Bookify.Models.ViewModels;
+using Bookify.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Stripe.Checkout;
 using Stripe;
 using System.Security.Claims;
 
-namespace Ecommerce.Web.Areas.Admin.Controllers
+namespace Bookify.Web.Areas.Admin.Controllers
 {
     [Area("Admin")]
 

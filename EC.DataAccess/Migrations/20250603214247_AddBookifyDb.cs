@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace ECommerce.DataAccess.Migrations
+namespace Bookify.DataAccess.Migrations
 {
     /// <inheritdoc />
     public partial class AddBookifyDb : Migration

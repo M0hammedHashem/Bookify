@@ -1,9 +1,9 @@
-﻿using ECommerce.DataAccess.Repository;
-using ECommerce.Utility;
+﻿using Bookify.DataAccess.Repository;
+using Bookify.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
-namespace Ecommerce.Web.ViewComponents
+namespace Bookify.Web.ViewComponents
 {
     public class ShoppingCartViewComponent : ViewComponent
     {

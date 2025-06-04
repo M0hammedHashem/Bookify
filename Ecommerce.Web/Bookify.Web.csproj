@@ -23,9 +23,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EC.DataAccess\ECommerce.DataAccess.csproj" />
-    <ProjectReference Include="..\EC.Models\ECommerce.Models.csproj" />
-    <ProjectReference Include="..\EC.Utility\ECommerce.Utility.csproj" />
+    <ProjectReference Include="..\EC.DataAccess\Bookify.DataAccess.csproj" />
+    <ProjectReference Include="..\EC.Models\Bookify.Models.csproj" />
+    <ProjectReference Include="..\EC.Utility\Bookify.Utility.csproj" />
   </ItemGroup>
 
   <ItemGroup>

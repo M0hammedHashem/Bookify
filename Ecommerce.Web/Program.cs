@@ -1,13 +1,13 @@
-using ECommerce.DataAccess.Data;
-using ECommerce.DataAccess.Repository;
-using ECommerce.DataAccess.Repository.IRepository;
+using Bookify.DataAccess.Data;
+using Bookify.DataAccess.Repository;
+using Bookify.DataAccess.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using ECommerce.Utility;
+using Bookify.Models;
 using Stripe;
-using ECommerce.DataAccess;
-using ECommerce.Models;
+using Bookify.DataAccess;
+using Bookify.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(

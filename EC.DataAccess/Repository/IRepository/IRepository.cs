@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ECommerce.DataAccess.Repository.IRepository
+namespace Bookify.DataAccess.Repository.IRepository
 {
     public interface IRepository<T>where T : class
     {

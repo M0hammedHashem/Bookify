@@ -10,9 +10,9 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
-using ECommerce.DataAccess.Repository;
-using ECommerce.Models;
-using ECommerce.Utility;
+using Bookify.DataAccess.Repository;
+using Bookify.Models;
+using Bookify.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -24,7 +24,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 
-namespace Ecommerce.Web.Areas.Identity.Pages.Account
+namespace Bookify.Web.Areas.Identity.Pages.Account
 {
     
     public class RegisterModel : PageModel

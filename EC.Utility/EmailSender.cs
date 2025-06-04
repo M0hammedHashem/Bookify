@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ECommerce.Utility
+namespace Bookify.Models
 {
     public class EmailSender : IEmailSender
 

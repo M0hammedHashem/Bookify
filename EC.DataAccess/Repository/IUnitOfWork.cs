@@ -1,11 +1,11 @@
-﻿using ECommerce.DataAccess.Repository.IRepository;
+﻿using Bookify.DataAccess.Repository.IRepository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ECommerce.DataAccess.Repository
+namespace Bookify.DataAccess.Repository
 {
     public interface IUnitOfWork
     {

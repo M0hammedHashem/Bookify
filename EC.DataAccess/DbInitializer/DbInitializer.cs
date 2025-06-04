@@ -1,6 +1,6 @@
-﻿using ECommerce.DataAccess.Data;
-using ECommerce.Models;
-using ECommerce.Utility;
+﻿using Bookify.DataAccess.Data;
+using Bookify.Models;
+using Bookify.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ECommerce.DataAccess
+namespace Bookify.DataAccess
 {
     public class DbInitializer : IDbInitializer
     {

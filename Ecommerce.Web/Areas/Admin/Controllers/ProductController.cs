@@ -1,8 +1,8 @@
-﻿using ECommerce.DataAccess.Data;
-using ECommerce.DataAccess.Repository;
-using ECommerce.Models;
-using ECommerce.Models.ViewModels;
-using ECommerce.Utility;
+﻿using Bookify.DataAccess.Data;
+using Bookify.DataAccess.Repository;
+using Bookify.Models;
+using Bookify.Models.ViewModels;
+using Bookify.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -11,7 +11,7 @@ using System.Text.Json;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 
-namespace Ecommerce.Web.Areas.Admin.Controllers
+namespace Bookify.Web.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize(Roles = SD.Role_Admin)]

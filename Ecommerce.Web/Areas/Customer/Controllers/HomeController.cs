@@ -1,15 +1,15 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using ECommerce.Models;
-using ECommerce.DataAccess.Repository;
-using ECommerce.Models.ViewModels;
+using Bookify.Models;
+using Bookify.DataAccess.Repository;
+using Bookify.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Authorization;
-using ECommerce.Utility;
+using Bookify.Models;
 using System.Security.Claims;
 
 
-namespace Ecommerce.Web.Areas.Customer.Controllers
+namespace Bookify.Web.Areas.Customer.Controllers
 {
     [Area("Customer")]
     //[Authorize(Roles =SD.Role_Customer)]

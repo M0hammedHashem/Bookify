@@ -1,7 +1,7 @@
-﻿using ECommerce.DataAccess;
-using ECommerce.DataAccess.Repository.IRepository;
-using ECommerce.DataAccess.Repository;
-using ECommerce.Utility;
+﻿using Bookify.DataAccess;
+using Bookify.DataAccess.Repository.IRepository;
+using Bookify.DataAccess.Repository;
+using Bookify.Models;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 
-namespace ECommerce.DataAccess
+namespace Bookify.DataAccess
 {
     public static class ExtenssionDA
     {

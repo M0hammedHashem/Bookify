@@ -1,5 +1,5 @@
-﻿using ECommerce.DataAccess.Data;
-using ECommerce.DataAccess.Repository.IRepository;
+﻿using Bookify.DataAccess.Data;
+using Bookify.DataAccess.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
-namespace ECommerce.DataAccess.Repository
+namespace Bookify.DataAccess.Repository
 {
     public class Repository<T> : IRepository<T> where T : class
     {

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
-namespace ECommerce.Models
+namespace Bookify.Models
 {
     public class Product
     {
