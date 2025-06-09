@@ -34,6 +34,13 @@ builder.Services.AddAuthentication().AddFacebook(option=>
 
 
     }
+);builder.Services.AddAuthentication().AddGoogle(option=>
+{ 
+    option.ClientId = builder.Configuration.GetSection("GoogleKeys:ClientID").Value;
+    option.ClientSecret = builder.Configuration.GetSection("GoogleKeys:ClientSecret").Value;
+
+
+    }
 );
 
 builder.Services.AddDistributedMemoryCache();
