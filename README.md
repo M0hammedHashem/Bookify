@@ -1,7 +1,7 @@
 
 # Bookify
 
-# 📚 ASP.NET Core MVC Book Store E-Commerce Application (.NET 8)
+# 📚 ASP.NET Core MVC Book Store E-Commerce Application (.NET 9)
 
 [![.NET](https://img.shields.io/badge/.NET-9.0-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com/download/dotnet/9.0)
 [![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-9.0-512BD4?style=flat-square&logo=dotnet)](https://docs.microsoft.com/en-us/aspnet/core/)
