@@ -8,9 +8,19 @@
 [![Entity Framework](https://img.shields.io/badge/Entity%20Framework-Core-512BD4?style=flat-square&logo=dotnet)](https://docs.microsoft.com/en-us/ef/)
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-7952B3?style=flat-square&logo=bootstrap)](https://getbootstrap.com/)
 
-## 🌐 Live Demo
-Experience the application in action: [BookStore Live Demo]
+# 🎥 Demo
 
+Experience the BookStore application in action through our comprehensive video demonstration.
+
+**[📺 Watch Live Demo](https://drive.google.com/file/d/1ZobkURmuJ8H90DdJpkRL3r5zBYi4kETS/view?usp=sharing)**
+
+The demo showcases:
+- User interface and navigation
+- Core bookstore functionality
+- Key features and workflows
+- Real-time application performance
+
+> **Note**: Click the link above to view the video demonstration on Google Drive.
 ## 📋 Table of Contents
 - [Overview](#overview)
 - [Features](#features)
