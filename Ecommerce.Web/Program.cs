@@ -8,6 +8,7 @@ using Bookify.Models;
 using Stripe;
 using Bookify.DataAccess;
 using Bookify.Models;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(
@@ -28,19 +29,21 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 
-builder.Services.AddAuthentication().AddFacebook(option=>
-{ option.AppId = "1873666016767637";
-    option.AppSecret = "b8a10ae1cf7587847780108bccf9325d";
+builder.Services.AddAuthentication().AddFacebook(options=>
+{ options.AppId = "1873666016767637";
+    options.AppSecret = "b8a10ae1cf7587847780108bccf9325d";
 
 
     }
-);builder.Services.AddAuthentication().AddGoogle(option=>
+);builder.Services.AddAuthentication().AddGoogle(options=>
 { 
-    option.ClientId = builder.Configuration.GetSection("GoogleKeys:ClientID").Value;
-    option.ClientSecret = builder.Configuration.GetSection("GoogleKeys:ClientSecret").Value;
+    options.ClientId = builder.Configuration.GetSection("GoogleKeys:ClientID").Value;
+    options.ClientSecret = builder.Configuration.GetSection("GoogleKeys:ClientSecret").Value;
+    options.CallbackPath = "/signin-google";
 
+    options.SaveTokens = true;
 
-    }
+}
 );
 
 builder.Services.AddDistributedMemoryCache();

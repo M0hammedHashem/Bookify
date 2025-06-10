@@ -19,6 +19,8 @@ namespace Bookify.DataAccess
         public static void AddDataAccessLayerServices(this IServiceCollection Services)
         {
             Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            Services.AddScoped( typeof(IRepository<>), typeof(Repository<>));
+
             Services.AddScoped<ICategoryRepository, CategoryRepository>();
             Services.AddScoped<IProductRepository, ProductRepository>();
             Services.AddScoped<ICompanyRepository, CompanyRepository>();

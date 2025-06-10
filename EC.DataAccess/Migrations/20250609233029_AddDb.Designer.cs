@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bookify.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250603214247_AddBookifyDb")]
-    partial class AddBookifyDb
+    [Migration("20250609233029_AddDb")]
+    partial class AddDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -425,9 +425,6 @@ namespace Bookify.DataAccess.Migrations
                     b.Property<int>("Count")
                         .HasColumnType("int");
 
-                    b.Property<double>("Price")
-                        .HasColumnType("float");
-
                     b.Property<int>("ProductID")
                         .HasColumnType("int");
 
@@ -662,10 +659,6 @@ namespace Bookify.DataAccess.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PostalCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("State")

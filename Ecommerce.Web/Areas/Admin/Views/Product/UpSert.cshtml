@@ -78,9 +78,9 @@
                         <div class="form-floating py-2 col-12">
 
 
-                            <textarea asp-for="Product.Description" class="form-control border-0 shadow"></textarea> />
+                            <input asp-for="Product.Description" class="form-control border-0 shadow" />
                             <Label asp-for="Product.Description" class="ms-2"></Label>
-
+                            <span asp-validation-for="Product.Description" class="text-danger"></span>
                         </div>
                         <div class="form-floating py-2 col-12">
                             <select asp-for="Product.CategoryID" asp-items="@Model.CategoryList" class="form-select border-0 shadow">

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Bookify.DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class AddBookifyDb : Migration
+    public partial class AddDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -119,7 +119,6 @@ namespace Bookify.DataAccess.Migrations
                     State = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PostalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CompanyID = table.Column<int>(type: "int", nullable: true),
-                    Role = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -294,7 +293,6 @@ namespace Bookify.DataAccess.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ProductID = table.Column<int>(type: "int", nullable: false),
                     Count = table.Column<int>(type: "int", nullable: false),
-                    Price = table.Column<double>(type: "float", nullable: false),
                     ApplicationUserID = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>

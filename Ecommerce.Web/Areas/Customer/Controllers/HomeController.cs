@@ -49,7 +49,9 @@ namespace Bookify.Web.Areas.Customer.Controllers
             {
                 Product = product,
                 Count = 1,
-                ProductID = product.Id
+                ProductID = product.Id,
+               Price = product.Price
+                
             };
 
             return View(shoppingCart);
@@ -73,8 +75,12 @@ namespace Bookify.Web.Areas.Customer.Controllers
             }
             else
             {
-                await _unitOfWork.ShoppingCart.AddAsync(shoppingCart);
+                shoppingCart.Product= await _unitOfWork.Product
+              .GetAsync(p => p.Id ==shoppingCart.ProductID, include: "Category,ProductImages");
 
+                shoppingCart.Price = shoppingCart.Count * shoppingCart.Product.Price;
+                await _unitOfWork.ShoppingCart.AddAsync(shoppingCart);
+                await _unitOfWork.SaveAsync();
                 var userCartCount = await _unitOfWork.ShoppingCart
                     .GetAllAsync(u => u.ApplicationUserID == shoppingCart.ApplicationUserID);
                 HttpContext.Session.SetInt32(SD.SessionCart, userCartCount.Count());
