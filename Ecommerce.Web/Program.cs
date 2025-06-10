@@ -30,8 +30,11 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 
 builder.Services.AddAuthentication().AddFacebook(options=>
-{ options.AppId = "1873666016767637";
-    options.AppSecret = "b8a10ae1cf7587847780108bccf9325d";
+
+{
+
+    options.AppId = builder.Configuration.GetSection("Facebook:AppId").Value;
+    options.AppSecret = builder.Configuration.GetSection("Facebook:AppSecret").Value;
 
 
     }
@@ -80,6 +83,8 @@ app.UseSession();
 InitializeDatabase();
 
 StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
+
+
 
 app.MapRazorPages();
 app.MapControllerRoute(

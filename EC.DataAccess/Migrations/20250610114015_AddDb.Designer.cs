@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bookify.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250609233029_AddDb")]
+    [Migration("20250610114015_AddDb")]
     partial class AddDb
     {
         /// <inheritdoc />

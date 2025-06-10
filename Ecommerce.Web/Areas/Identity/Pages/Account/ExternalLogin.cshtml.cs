@@ -17,10 +17,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using Bookify.Models;
 
 namespace Bookify.Web.Areas.Identity.Pages.Account
 {
     [AllowAnonymous]
+  
     public class ExternalLoginModel : PageModel
     {
         private readonly SignInManager<IdentityUser> _signInManager;
@@ -205,17 +207,26 @@ namespace Bookify.Web.Areas.Identity.Pages.Account
             return Page();
         }
 
-        private IdentityUser CreateUser()
+        private ApplicationUser CreateUser()
         {
             try
             {
-                return Activator.CreateInstance<IdentityUser>();
+                var user = new ApplicationUser
+                {
+                    UserName = Input.Email,
+                    Email = Input.Email,
+                    Name = Input.Name,
+                    StreetAddrees = Input.StreetAddress,
+                    City = Input.City,
+                    State = Input.State,
+                    PostalCode = Input.PostalCode,
+                    PhoneNumber = Input.PhoneNumber
+                };
+                return user;
             }
             catch
             {
-                throw new InvalidOperationException($"Can't create an instance of '{nameof(IdentityUser)}'. " +
-                    $"Ensure that '{nameof(IdentityUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
-                    $"override the external login page in /Areas/Identity/Pages/Account/ExternalLogin.cshtml");
+                throw new InvalidOperationException($"Can't create an instance of 'ApplicationUser'.");
             }
         }
 
