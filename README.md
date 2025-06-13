@@ -35,8 +35,7 @@ The demo showcases:
 
 ## 🎯 Overview
 
-This repository contains a comprehensive **E-Commerce BookStore Application** built with **ASP.NET Core MVC (.NET 9)**. The project serves as a complete guide to modern web development using Microsoft technologies, demonstrating real-world e-commerce functionality with enterprise-level architecture patterns.
-
+This repository contains a comprehensive E-Commerce BookStore Application built with ASP.NET Core MVC (.NET 9). Featuring complete shopping functionality including user authentication, cart management, order processing, and secure checkout, this project demonstrates enterprise-level architecture patterns using Repository pattern, Dependency Injection, and Entity Framework Core. Perfect for developers seeking to master modern web development with Microsoft technologies or build impressive portfolio projects.
 The application is part of the comprehensive course **".NET Core MVC - The Complete Guide 2025 [E-commerce]"** and showcases best practices in building scalable, secure, and maintainable web applications.
 
 ## ✨ Features
